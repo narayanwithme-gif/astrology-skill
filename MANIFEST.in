@@ -1,0 +1,7 @@
+include SKILL.md requirements.txt requirements-dev.txt CONTRIBUTING.md SECURITY.md CHANGELOG.md
+recursive-include references *.md
+recursive-include assets *.json
+recursive-include scripts *.py *.ps1 *.sh
+recursive-include tests *.py
+recursive-include docs *.md *.svg
+recursive-include examples *.html *.json

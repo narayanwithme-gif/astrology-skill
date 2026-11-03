@@ -1,0 +1,5 @@
+Original skill instructions, calculation helper and chart atlas: Copyright 2026. Licensed under AGPL-3.0-or-later; see LICENSE.
+Dependencies are installed separately, not bundled in this archive:
+- pyswisseph 2.10.3.2 / Swiss Ephemeris: AGPL free-license route; see installed package notices and https://www.astro.com/swisseph/swephprg.htm.
+- tzdata 2026.2: package and IANA data notices are retained in the dedicated runtime.
+This package includes no copyrighted book chapters, personal birth profiles, API keys or paid services.

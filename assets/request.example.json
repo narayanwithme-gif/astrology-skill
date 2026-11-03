@@ -1,0 +1,22 @@
+{
+  "label": "Fictional demonstration",
+  "birth": {
+    "date": "2000-01-01",
+    "time": "12:00:00",
+    "timezone": "Asia/Kolkata",
+    "latitude": 28.6139,
+    "longitude": 77.2090,
+    "place": "New Delhi, India (demonstration only)",
+    "coordinate_source": "Example coordinates; replace after verification",
+    "time_source": "Fictional example",
+    "uncertainty_minutes": 5
+  },
+  "settings": {
+    "western_houses": "P",
+    "ayanamsha": "lahiri",
+    "nodes": "mean",
+    "dasha_year_days": 365.25,
+    "aspect_orb_degrees": 6
+  },
+  "as_of": "2026-11-03T12:00:00+05:30"
+}
