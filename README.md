@@ -2,6 +2,7 @@
 
 A Hermes skill and local calculator for Western astrology and Jyotisha.
 
+Hermes Astrology is an early-stage, open-source tool for Western astrology and Jyotisha. It combines local chart calculations and visual reports with AI-assisted interpretation. The project is documented and usable, but it’s new and has not yet attracted visible community engagement. Feedback, testing, and contributions are welcome.
 The calculator produces chart data, diagrams, planetary periods and transit tables. Hermes uses the included references to write a reading from those results. Western and Jyotisha calculations remain separate throughout the report.
 
 ![Western, north Indian and south Indian chart examples](docs/images/charts.svg)
