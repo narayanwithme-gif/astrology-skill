@@ -3,7 +3,7 @@ name: astrology-structured
 description: Calculate, display and interpret Western and Vedic astrology charts with explicit settings, sources and uncertainty. Use for natal readings, kundli, Jyotisha, career, relationships, dashas, transits, chart comparison and astrology lessons.
 license: AGPL-3.0-or-later
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Structured Western and Vedic astrology
@@ -16,6 +16,7 @@ Produce reproducible chart data before interpretation. Keep Western and Jyotisha
 - **Focused question:** calculate or reuse a matching verified chart, read the requested topic in `references/interpretation.md`, and explain only the relevant factors.
 - **Compare people:** calculate separately with identical settings within each tradition, then use the compatibility procedure in `references/interpretation.md`.
 - **Lesson:** read `references/learning.md`. Teach one lesson at a time; a lesson needs no birth data unless practicing a chart.
+- **Fortune Report:** read `references/fortune-report.md`. The user asks for a branded "Fortune Report" like a sample PDF (purple cover, Index 01–16, Lucky Things, Mulank/Bhagyank, Lo Shu Grid, career, month-wise, Life-Path). Calculate with `chart_engine.py` as usual, derive numerology from the user's own DOB + name (never copy sample-report data), then build HTML + PDF with `scripts/fortune_report.py` and write the full interpretation prose following the Fortune template in `references/fortune-report.md`. No remedies/gems prescribed, especially for minors; no health/finance prediction; approximate birth times carry the uncertainty caveat.
 - **Existing chart:** transcribe placements and settings, flag unreadable or missing details, and distinguish supplied data from independently computed data.
 - **Electional, horary, mundane, rectification, specialized vargas:** use the advanced-mode procedure in `references/interpretation.md`. These require extra rules and calculations; do not pretend natal output implements them.
 
@@ -76,3 +77,7 @@ Use bullet form for readings. Keep exact degrees/settings in tables, diagrams la
 Read `references/sources.md` when sourcing rules. Cite author/title/edition/chapter/page only when inspected; otherwise cite the accessible section URL and disclose edition uncertainty. Never fabricate quotations or download copyrighted scans merely because a PDF is reachable.
 
 When the user requests saved study progress, save a concise checkpoint using Hermes's available memory mechanism or an established local study file. Store settings, topics learned, corrections, unanswered questions and output paths. Keep raw birth details in a separate local profile only when requested; do not hardcode them in this reusable skill. Update interpretations when calculation settings change. Say “saved locally”, not “permanently trained”.
+
+## 7. Fortune Report mode
+
+Read `references/fortune-report.md` before generating a Fortune Report. It defines the 16-section structure, the numerology formulas (Mulank, Bhagyank, Name/Soul/Personality, Kua, Lo Shu Grid), the HTML/PDF design contract, and the non-negotiable safety boundaries: never copy a sample report's data (derive everything from the user's own DOB + name), never prescribe remedies/gems/rudraksh (especially for minors), never predict health or finance outcomes, and always carry the birth-time uncertainty caveat. Generate the chart with `scripts/chart_engine.py`, then build the branded HTML + PDF with `scripts/fortune_report.py --chart chart.json --request request.json --name "FULL NAME" --brand "BRAND" --out-dir DIR`, and write the full interpretation prose in `reading.md` following the Fortune template.
