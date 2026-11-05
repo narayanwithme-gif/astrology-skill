@@ -9,5 +9,5 @@ if (-not (Test-Path -LiteralPath $exe)) {
 }
 & $exe -m pip install -r (Join-Path $skillRoot 'requirements.txt')
 if ($LASTEXITCODE -ne 0) { throw 'Dependency installation failed' }
-& $exe -c 'import swisseph, zoneinfo; print("Calculation runtime ready:", swisseph.version, zoneinfo.ZoneInfo("Asia/Kolkata"))'
+& $exe -c 'import swisseph, zoneinfo; print(\"Calculation runtime ready:\", swisseph.version, zoneinfo.ZoneInfo(\"Asia/Kolkata\"))'
 if ($LASTEXITCODE -ne 0) { throw 'Runtime import check failed' }
