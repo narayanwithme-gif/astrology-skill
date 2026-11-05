@@ -3,7 +3,7 @@ name: astrology-structured
 description: Calculate, display and interpret Western and Vedic astrology charts with explicit settings, sources and uncertainty. Use for natal readings, kundli, Jyotisha, career, relationships, dashas, transits, chart comparison and astrology lessons.
 license: AGPL-3.0-or-later
 metadata:
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 
 # Structured Western and Vedic astrology
