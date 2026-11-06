@@ -101,6 +101,16 @@ python scripts/fortune_report.py --chart chart.json --request request.json --nam
 
 The PDF requires `reportlab` and `pillow`. The HTML is self-contained.
 
+## Install (one line)
+
+```bash
+# Hermes Agent native install
+hermes skills install github:narayanwithme-gif/astrology-skill
+
+# Universal SKILL.md installer
+npx skills add narayanwithme-gif/astrology-skill
+```
+
 ## Scope and limits
 
 Astrology is treated here as a traditional symbolic practice. Its interpretations are not scientifically established predictions.

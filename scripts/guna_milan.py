@@ -116,6 +116,32 @@ NADI_PER_NAK = ["Aadi","Madhya","Antya","Antya","Madhya","Aadi","Aadi","Madhya",
 def nadi_score(a_nak, b_nak):
     return 8.0 if NADI_PER_NAK[a_nak] != NADI_PER_NAK[b_nak] else 0.0
 
+def evaluate_dosha_cancellations(person_a, person_b, koota_scores):
+    """Classical Dosha Parihara (cancellation) flags. Inputs use moon_sign/moon_nak/moon_pada/mars houses if present."""
+    same_rashi = person_a.get("moon_sign") == person_b.get("moon_sign")
+    same_nak = person_a.get("moon_nak") == person_b.get("moon_nak")
+    diff_pada = person_a.get("moon_pada") != person_b.get("moon_pada")
+    # sign lords via SIGNS_LORD in guna_milan
+    try:
+        from guna_milan import SIGNS_LORD
+        same_lord = SIGNS_LORD.get(person_a.get("moon_sign")) == SIGNS_LORD.get(person_b.get("moon_sign"))
+    except Exception:
+        same_lord = same_rashi
+    nadi_raw = koota_scores.get("Nadi", 8) == 0.0
+    nadi_cancelled = nadi_raw and ((same_rashi and not same_nak) or (same_nak and not same_rashi) or (same_nak and diff_pada))
+    bhakoot_raw = koota_scores.get("Bhakoot", 7) == 0.0
+    bhakoot_cancelled = bhakoot_raw and (same_lord or koota_scores.get("Graha Maitri", 0) >= 4.0)
+    mang_houses = {1,2,4,7,8,12}
+    a_m = person_a.get("mars_house_lagna") in mang_houses or person_a.get("mars_house_moon") in mang_houses
+    b_m = person_b.get("mars_house_lagna") in mang_houses or person_b.get("mars_house_moon") in mang_houses
+    mang_cancelled = (a_m and b_m) if (a_m or b_m) else True
+    eff = sum(koota_scores.values()) + (8.0 if nadi_cancelled else 0) + (7.0 if bhakoot_cancelled else 0)
+    return {"raw_score": sum(koota_scores.values()), "effective_score_after_parihara": min(36.0, eff),
+            "max_score": 36.0,
+            "nadi_dosha": {"present": nadi_raw, "cancelled": nadi_cancelled},
+            "bhakoot_dosha": {"present": bhakoot_raw, "cancelled": bhakoot_cancelled},
+            "mangalik_dosha": {"person_a": a_m, "person_b": b_m, "cancelled": mang_cancelled}}
+
 def guna_milan(a, b):
     """a,b = dicts with moon_sign, moon_deg, moon_nak (0-26)"""
     breakdown = {
@@ -155,6 +181,14 @@ if __name__ == "__main__":
     ca = json.loads(Path(a.chart_a).read_text(encoding="utf-8"))
     cb = json.loads(Path(a.chart_b).read_text(encoding="utf-8"))
     result = guna_milan(from_chart(ca), from_chart(cb))
+    try:
+        pa, pb = from_chart(ca), from_chart(cb)
+        for _c, _p in ((ca, pa), (cb, pb)):
+            _mars = _c["jyotisha"]["planets"]["Mars"]["house"]
+            _p["mars_house_lagna"] = _mars; _p["mars_house_moon"] = _mars
+        result["dosha_parihara"] = evaluate_dosha_cancellations(pa, pb, result["breakdown"])
+    except Exception as e:
+        result["dosha_parihara_error"] = str(e)
     txt = json.dumps(result, indent=2)
     if a.out:
         Path(a.out).write_text(txt, encoding="utf-8")

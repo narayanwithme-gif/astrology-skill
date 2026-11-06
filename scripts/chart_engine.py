@@ -304,11 +304,12 @@ def calculate(request):
         "raman": swe.SIDM_RAMAN,
         "krishnamurti": swe.SIDM_KRISHNAMURTI,
         "kp": swe.SIDM_KRISHNAMURTI,
+        "drik": swe.SIDM_TRUE_CITRA,
     }
-    # normalise ayanamsha aliases (kp -> krishnamurti)
+    # normalise ayanamsha aliases (kp -> krishnamurti, drik -> true chitra)
     if isinstance(s.get("ayanamsha"), str):
         s["ayanamsha"] = s["ayanamsha"].lower()
-        if s["ayanamsha"] == "kp":
+        if s["ayanamsha"] in ("kp", "krishnamurti_vp291"):
             s["ayanamsha"] = "krishnamurti"
     if s["ayanamsha"] not in modes:
         raise ValueError("Unsupported ayanamsha")
