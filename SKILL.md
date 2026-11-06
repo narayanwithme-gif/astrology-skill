@@ -1,9 +1,9 @@
 ---
 name: astrology-structured
-description: Calculate, display and interpret Western and Vedic astrology charts with explicit settings, sources and uncertainty. Use for natal readings, kundli, Jyotisha, career, relationships, dashas, transits, chart comparison and astrology lessons.
+description: Calculate, display and interpret Western and Vedic astrology charts with explicit settings, sources and uncertainty. Use for natal readings, kundli, Jyotisha, Guna Milan compatibility, Ayanamsha selection (Lahiri/KP/Raman), multilingual (Hindi/Hinglish/Marathi/Odia/English) reports, career, relationships, dashas, transits, chart comparison and astrology lessons.
 license: AGPL-3.0-or-later
 metadata:
-  version: "1.2.0"
+  version: "1.3.0"
 ---
 
 # Structured Western and Vedic astrology
@@ -16,7 +16,9 @@ Produce reproducible chart data before interpretation. Keep Western and Jyotisha
 - **Focused question:** calculate or reuse a matching verified chart, read the requested topic in `references/interpretation.md`, and explain only the relevant factors.
 - **Compare people:** calculate separately with identical settings within each tradition, then use the compatibility procedure in `references/interpretation.md`.
 - **Lesson:** read `references/learning.md`. Teach one lesson at a time; a lesson needs no birth data unless practicing a chart.
+- **Compare people / Guna Milan:** calculate both charts separately (identical ayanamsha within a pair), then run `scripts/guna_milan.py --chart-a A.json --chart-b B.json` for the deterministic Ashtakoota 36 (Varna, Vashya, Tara, Yoni, Graha Maitri, Gana, Bhakoot, Nadi) + modern 0–100 synastry (total/36×100). Read `references/guna-milan.md`. Report the breakdown + dosha flags; the 36 is a traditional count, not a prediction.
 - **Fortune Report:** read `references/fortune-report.md`. The user asks for a branded "Fortune Report" like a sample PDF (purple cover, Index 01–16, Lucky Things, Mulank/Bhagyank, Lo Shu Grid, career, month-wise, Life-Path). Calculate with `chart_engine.py` as usual, derive numerology from the user's own DOB + name (never copy sample-report data), then build HTML + PDF with `scripts/fortune_report.py` and write the full interpretation prose following the Fortune template in `references/fortune-report.md`. No remedies/gems prescribed, especially for minors; no health/finance prediction; approximate birth times carry the uncertainty caveat.
+- **Language:** read `references/templates.md`. Default `en`. If the user wants Hindi (`hi`), Hinglish (`hinglish`), Marathi (`mr`), Odia (`or`) or English, generate with that template (`--lang`) and `scripts/pdf_export.py` for PDF. Never force a language the user didn't ask for.
 - **Existing chart:** transcribe placements and settings, flag unreadable or missing details, and distinguish supplied data from independently computed data.
 - **Electional, horary, mundane, rectification, specialized vargas:** use the advanced-mode procedure in `references/interpretation.md`. These require extra rules and calculations; do not pretend natal output implements them.
 

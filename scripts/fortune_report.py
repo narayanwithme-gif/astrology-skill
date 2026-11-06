@@ -71,6 +71,7 @@ def main():
     ap.add_argument("--name", required=True)
     ap.add_argument("--brand", default="ASTRO NARAYAN PRAJAPATI")
     ap.add_argument("--gender", default="", help="female|male (for Kua); default: male")
+    ap.add_argument("--lang", default="en", choices=["en","hi","hinglish","mr","or"], help="Template language (references/templates.md)")
     ap.add_argument("--out-dir", required=True)
     args = ap.parse_args()
 
@@ -78,9 +79,19 @@ def main():
     req = json.loads(pathlib.Path(args.request).read_text(encoding="utf-8"))
     b = req["birth"]
     num = numerology(b["date"], args.name)
-    # Kua by gender (request may carry gender; default: show both, flag assumption)
-    kua = num["kua_female"] if req.get("gender", "").lower().startswith("f") else num["kua_male"]
-    kua_basis = "female" if req.get("gender", "").lower().startswith("f") else "male (default; set --gender to override)"
+    # Kua by gender
+    eff_gender = (args.gender or req.get("gender", "")).lower()
+    kua = num["kua_female"] if eff_gender.startswith("f") else num["kua_male"]
+    kua_basis = "female" if eff_gender.startswith("f") else "male (default; set --gender to override)"
+    # Lang headings (references/templates.md)
+    TPL = {
+      "en": ["FORTUNE REPORT","Your Lucky Things","Numerological Analysis","Fortune Grid Analysis","Life-Path Appendix"],
+      "hi": ["कुंडली रिपोर्ट","आपके शुभ अंक","अंक शास्त्र विश्लेषण","लो शु ग्रिड विश्लेषण","जीवन मार्ग परिशिष्ट"],
+      "hinglish": ["FORTUNE REPORT","Aapke Lucky Things","Numerology Analysis","Fortune Grid Analysis","Life-Path Appendix"],
+      "mr": ["कुंडली अहवाल","तुमच्या शुभ गोष्टी","अंकशास्त्र विश्लेषण","लो शु ग्रिड विश्लेषण","जीवन मार्ग परिशिष्ट"],
+      "or": ["ଭାଗ୍ୟ ରିପୋର୍ଟ","ଆପଣଙ୍କ ଶୁଭ ଜିନିଷ","ଅଙ୍କଶାସ୍ତ୍ର ବିଶ୍ଳେଷଣ","ଲୋ ଶୁ ଗ୍ରିଡ୍ ବିଶ୍ଳେଷଣ","ଜୀବନ ପଥ ପରିଶିଷ୍ଟ"],
+    }
+    TH = TPL.get((args.lang or "en").lower(), TPL["en"])
     j = chart["jyotisha"]; w = chart["western"]
     nak = j["moon_nakshatra"]
     safe = re.sub(r"[^A-Za-z0-9]+", "-", args.name.strip()).strip("-").upper()
@@ -134,7 +145,7 @@ th{{background:#FFF1B8;width:42%}}
 <div class="cover">
 <div style="color:#E8C766">॥ ॐ श्री गणेशाय नमः ॥</div>
 <div style="letter-spacing:.3em;color:#E8C766;margin-top:18px">YOUR</div>
-<h1>FORTUNE<br>REPORT</h1>
+<h1>{TH[0]}</h1>
 <div style="color:#E8C766;letter-spacing:.25em">BY {E_BRAND}</div>
 <div style="margin:26px auto 10px;padding:14px 44px;border:3px solid #E8C766;border-radius:999px;font-size:clamp(22px,3vw,34px)">{E_NAME}</div>
 <div style="opacity:.95;line-height:1.8;margin-top:14px"><b>Birth:</b> {E_DATE} · {E_TIME} {E_TZ} · {E_PLACE}<br>
@@ -150,7 +161,7 @@ th{{background:#FFF1B8;width:42%}}
 <section class="page" id="disclaimer"><h2>Disclaimer</h2>
 <p>This report is a symbolic, traditional interpretive document prepared from the birth details supplied ({E_DATE}, {E_TIME} {E_TZ}, {E_PLACE}). It is not professional medical, legal or financial advice. Numerological and astrological interpretations are traditional belief systems, presented for reflection, learning and entertainment. They are not scientifically established predictions and no outcome is guaranteed. Remedies, stones or rudraksh are traditional associations only and are not prescribed. Consult qualified professionals for health, education and finance decisions.</p></section>
 
-<section class="page" id="lucky"><h2>Your Lucky Things</h2>
+<section class="page" id="lucky"><h2>{TH[1]}</h2>
 <table>
 <tr><th>Name</th><td><b>{E_NAME}</b></td></tr>
 <tr><th>Date of Birth</th><td>{E_DATE}</td></tr>
@@ -170,10 +181,10 @@ th{{background:#FFF1B8;width:42%}}
 <p class="note">Full section prose (Mulank/Bhagyank effects, colours, career, health, grid analysis, month-wise themes, life-path) is written by the assistant following references/fortune-report.md, using only the numbers above and chart.json. Traditional items are listed for format completeness only and are not prescribed.</p>
 </section>
 
-<section class="page" id="numerology"><h2>Numerological Analysis</h2>
+<section class="page" id="numerology"><h2>{TH[2]}</h2>
 <p>Mulank <b>{num['mulank']}</b> (birth day reduced). Bhagyank <b>{num['bhagyank']}</b> (full birth date digit sum {num['digits']}). Name Number <b>{num['name_no']}</b> (raw sum {num['name_total']}). Soul Urge <b>{num['soul']}</b>, Personality <b>{num['personality']}</b>. Effects are given by the assistant per references/fortune-report.md; this file carries the computed facts.</p></section>
 
-<section class="page" id="grid"><h2>Fortune Grid Analysis</h2>
+<section class="page" id="grid"><h2>{TH[3]}</h2>
 <div class="grid3">{grid_html}</div>
 <p>Digits {num['digits']}; counts {num['grid_counts']}; missing {num['missing']}.</p></section>
 
@@ -184,7 +195,7 @@ th{{background:#FFF1B8;width:42%}}
 <p>Current: {chart['vimshottari']['current']['mahadasha']}–{chart['vimshottari']['current']['antardasha']} → {chart['vimshottari']['current']['end_utc'][:10]}</p>
 <p>Full wheels: charts.html · Data: chart.json</p></section>
 
-<section class="page" id="lifepath"><h2>Life-Path Appendix</h2>
+<section class="page" id="lifepath"><h2>{TH[4]}</h2>
 <p>Career, Health, Family, Finance, Luck, Growth and Turning Points are written by the assistant from the placements above, following references/fortune-report.md — practical inference only, no medical, investment or irreversible-choice prescription.</p>
 <p style="text-align:center;color:#8B1E1E">॥ शुभम् भवतु ॥<br><small>Prepared for <b>{E_NAME}</b> · {E_DATE} · {E_PLACE} · By {E_BRAND}</small></p>
 </section>

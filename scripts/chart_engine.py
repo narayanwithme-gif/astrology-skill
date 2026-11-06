@@ -303,7 +303,13 @@ def calculate(request):
         "lahiri": swe.SIDM_LAHIRI,
         "raman": swe.SIDM_RAMAN,
         "krishnamurti": swe.SIDM_KRISHNAMURTI,
+        "kp": swe.SIDM_KRISHNAMURTI,
     }
+    # normalise ayanamsha aliases (kp -> krishnamurti)
+    if isinstance(s.get("ayanamsha"), str):
+        s["ayanamsha"] = s["ayanamsha"].lower()
+        if s["ayanamsha"] == "kp":
+            s["ayanamsha"] = "krishnamurti"
     if s["ayanamsha"] not in modes:
         raise ValueError("Unsupported ayanamsha")
     s["dasha_year_days"] = number(s["dasha_year_days"], "dasha_year_days", 350, 370)
