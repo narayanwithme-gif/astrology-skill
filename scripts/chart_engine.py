@@ -15,10 +15,10 @@ from zoneinfo import ZoneInfo
 
 import swisseph as swe
 
-SIGNS = "Aries Taurus Gemini Cancer Leo Virgo Libra Scorpio Sagittarius Capricorn Aquarius Pisces".split()
-NAK = "Ashwini Bharani Krittika Rohini Mrigashira Ardra Punarvasu Pushya Ashlesha Magha Purva-Phalguni Uttara-Phalguni Hasta Chitra Swati Vishakha Anuradha Jyeshtha Mula Purva-Ashadha Uttara-Ashadha Shravana Dhanishtha Shatabhisha Purva-Bhadrapada Uttara-Bhadrapada Revati".split()
-LORDS = ["Ketu", "Venus", "Sun", "Moon", "Mars", "Rahu", "Jupiter", "Saturn", "Mercury"]
-YEARS = dict(zip(LORDS, [7, 20, 6, 10, 7, 18, 16, 19, 17]))
+import os, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from engine_utils import ASPECTS, LORDS, NAK, SIGNS, YEARS, UTC, number  # noqa: F401  (re-exported)
+
 BODIES = [
     (n, getattr(swe, n.upper()))
     for n in [
@@ -42,16 +42,7 @@ ABBR = dict(
         ["Su", "Mo", "Me", "Ve", "Ma", "Ju", "Sa", "Ur", "Ne", "Pl", "Ra", "Ke"],
     )
 )
-UTC = timezone.utc
-
-
-def number(value, name, lo, hi):
-    if isinstance(value, bool):
-        raise ValueError(f"{name} must be a number")
-    v = float(value)
-    if not math.isfinite(v) or not lo <= v <= hi:
-        raise ValueError(f"{name} must be finite, between {lo} and {hi}")
-    return v
+UTC = timezone.utc  # keep local alias for existing call sites
 
 
 def parse_birth(b):
