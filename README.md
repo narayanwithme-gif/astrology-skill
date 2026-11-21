@@ -19,6 +19,13 @@ The calculator produces chart data, diagrams, planetary periods and transit tabl
 | Lunar data | Moon nakshatra, pada and tithi at the birth instant |
 | Periods | Vimshottari birth balance, mahadashas and antardashas |
 | Timing | Western transit aspects; Jyotisha gochara houses and graha drishti |
+| Composite charts | Midpoint composite and Davison relationship charts |
+| Progressions | Secondary progressions (day-for-a-year), solar and lunar returns |
+| Relocation | Locality charts, astrocartography line calculations |
+| Shadbala | Six-fold strength (Sthana, Dig, Cheshta, Kala, Uccha, Drik) per BPHS |
+| Ashtakavarga | Bhinna/Sarva/Kudumba/Samudaya bindu scores per Phaladeepika |
+| KP system | Star/Sub/Sub-Sub lords, Ruling Planet, Cuspal Interlink |
+| Jaimini | 7-Karaka scheme, Chara Dasha, Rashi Drishti special aspects |
 | Data checks | Historical timezones, repeated/nonexistent local times and birth-time uncertainty endpoints |
 | Output | JSON, a standalone HTML chart atlas and a Markdown calculation record |
 
@@ -55,6 +62,53 @@ Start a new Hermes chat so its skill catalog is refreshed. Say:
 > Use astrology-structured to calculate and read my Western and Jyotisha charts. Ask for missing birth details, show the chart settings, generate the supported diagrams and tables, and explain each conclusion from its placements. Save the report locally.
 
 Automatic selection depends on Hermes and the model. Naming the skill explicitly is the fallback.
+
+## Advanced Vedic and Western systems
+
+Beyond the core chart engine, additional calculation modules are available:
+
+### Composite and Relationship Charts
+| Function | Module |
+| --- | --- |
+| Midpoint composite (relationship) | `scripts/composite_charts.py` |
+| Davison relationship chart | `scripts/composite_charts.py` |
+| Synastry inter-chart aspects | `scripts/composite_charts.py` |
+
+### Progressions and Returns
+| Function | Module |
+| --- | --- |
+| Secondary progressions (day-for-a-year) | `scripts/progressions.py` |
+| Solar return charts | `scripts/progressions.py` |
+| Lunar return charts | `scripts/progressions.py` |
+
+### Relocation and Astrocartography
+| Function | Module |
+| --- | --- |
+| Relocation (locality) charts | `scripts/relocation.py` |
+| Astrocartography planet-angle lines | `scripts/relocation.py` |
+
+### Shadbala (Vedic Strength)
+| Function | Module |
+| --- | --- |
+| Sthana, Dig, Cheshta, Kala, Uccha, Drik, Naisa Bala | `scripts/shadbala.py` |
+| Total Shadbala for all planets | `scripts/shadbala.py` |
+
+### Ashtakavarga (Vedic Bindu System)
+| Function | Module |
+| --- | --- |
+| Bhinnashtakavarga (per planet) | `scripts/ashtakavarga.py` |
+| Sarvashtakavarga (per sign totals) | `scripts/ashtakavarga.py` |
+| Samudaya and Kudumba tables | `scripts/ashtakavarga.py` |
+
+### KP and Jaimini
+| Function | Module |
+| --- | --- |
+| Star/Sub/Sub-Sub lord tables | `scripts/kp_system.py` |
+| KP Ruling Planet | `scripts/kp_system.py` |
+| Cuspal Interlink | `scripts/kp_system.py` |
+| Jaimini 7-Karaka scheme (AK, AmK, BK…) | `scripts/kp_system.py` |
+| Jaimini Chara Dasha | `scripts/kp_system.py` |
+| Jaimini Rashi Drishti (special aspects) | `scripts/kp_system.py` |
 
 ## Run the calculator
 

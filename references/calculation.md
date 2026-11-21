@@ -19,6 +19,19 @@ House methods: P=Placidus, W=whole sign, E=equal (Ascendant cusp), K=Koch, O=Por
 - Tithi = floor((Moon−Sun mod 360)/12)+1. Paksha follows tithi 1–15/16–30. This is the tithi at the instant, not a sunrise-based day panchanga. No sunrise, karana, yoga, vara or muhurta calculation is implied.
 - Western transit output compares tropical moving-to-natal major aspects. Jyotisha gochara output supplies sidereal moving grahas, houses from natal Rashi Lagna and Parashari full sign-based moving-to-natal drishti. Western degree aspects are not substituted for Jyotisha drishti. Both include nodes using the chosen mode. These are snapshots, not exact-hit dates or forecasts.
 
+## Additional modules
+
+The following modules extend the core chart engine with additional calculation systems:
+
+- **Composite charts** (`scripts/composite_charts.py`): midpoint composite (relationship midpoint of two natal charts), Davison relationship chart (midpoint in time and space), and synastry inter-chart aspects. Use for relationship analysis between two people.
+- **Progressions** (`scripts/progressions.py`): secondary progressions (day-for-a-year: one day after birth = one year of life), solar return charts (Sun returns to natal position each year), and lunar return charts. Requires birth datetime and target date/location.
+- **Relocation** (`scripts/relocation.py`): locality charts (same birth time, different location — recalculated angles and houses) and simplified astrocartography planet-angle lines. Useful for relocation analysis and astrocartography.
+- **Shadbala** (`scripts/shadbala.py`): six-fold strength system — Sthana (positional), Dig (directional), Cheshta (motional), Kala (temporal), Uccha (exaltation), Drik (aspect from benefics). Per simplified BPHS. Early-stage; cross-check against a trusted reference before publishing.
+- **Ashtakavarga** (`scripts/ashtakavarga.py`): bindu scoring — Bhinnashtakavarga (per planet), Sarvashtakavarga (per sign totals), Samudaya and Kudumba tables. Per Phaladeepika/BPHS. Standard bindu tables included; verify against reference vectors.
+- **KP and Jaimini** (`scripts/kp_system.py`): KP Star/Sub/Sub-Sub lord tables, Ruling Planet, Cuspal Interlink; Jaimini 7-Karaka scheme (AK/AmK/BK/…/SK), Chara Dasha, and Rashi Drishti special aspects. KP requires Krishnamurti ayanamsha — do not substitute Lahiri. Jaimini aspects are not the same as Parashari graha drishti.
+
+All additional modules are early-stage implementations. Do not treat their outputs as independently verified. Cross-check against a trusted reference chart before publishing or relying on them for precise claims.
+
 ## Validation and uncertainty
 
 The helper runs one chart request per process. Swiss Ephemeris sidereal settings are process-global; use separate processes for concurrent requests with different settings.
