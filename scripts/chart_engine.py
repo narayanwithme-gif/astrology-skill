@@ -17,7 +17,7 @@ import swisseph as swe
 
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from engine_utils import ASPECTS, LORDS, NAK, SIGNS, YEARS, UTC, number  # noqa: F401  (re-exported)
+from engine_utils import ASPECTS, LORDS, NAK, SIGNS, SIGNS_SHORT, YEARS, UTC, number  # noqa: F401  (re-exported)
 
 BODIES = [
     (n, getattr(swe, n.upper()))
