@@ -43,7 +43,7 @@ class TestCompositeCharts(unittest.TestCase):
             jd_at(parse_birth(self.birth_a)),
             self.birth_a["latitude"],
             self.birth_a["longitude"],
-            {"western_houses": "P"},
+            {"western_houses": "P", "nodes": "mean"},
             sidereal=False
         )
         self.assertIn("planets", chart_a)
@@ -58,14 +58,14 @@ class TestCompositeCharts(unittest.TestCase):
             jd_at(parse_birth(self.birth_a)),
             self.birth_a["latitude"],
             self.birth_a["longitude"],
-            {"western_houses": "P"},
+            {"western_houses": "P", "nodes": "mean"},
             sidereal=False
         )
         chart_b = make_chart(
             jd_at(parse_birth(self.birth_b)),
             self.birth_b["latitude"],
             self.birth_b["longitude"],
-            {"western_houses": "P"},
+            {"western_houses": "P", "nodes": "mean"},
             sidereal=False
         )
 

@@ -29,7 +29,7 @@ class TestShadbala(unittest.TestCase):
             jd_at(parse_birth(cls.birth)),
             cls.birth["latitude"],
             cls.birth["longitude"],
-            {"western_houses": "P", "ayanamsha": "lahiri"},
+            {"western_houses": "P", "ayanamsha": "lahiri", "nodes": "mean"},
             sidereal=True
         )
 
@@ -94,7 +94,7 @@ class TestAshtakavarga(unittest.TestCase):
             jd_at(parse_birth(cls.birth)),
             cls.birth["latitude"],
             cls.birth["longitude"],
-            {"western_houses": "P", "ayanamsha": "lahiri"},
+            {"western_houses": "P", "ayanamsha": "lahiri", "nodes": "mean"},
             sidereal=True
         )
 
@@ -150,7 +150,7 @@ class TestKPAndJaimini(unittest.TestCase):
             jd_at(parse_birth(cls.birth)),
             cls.birth["latitude"],
             cls.birth["longitude"],
-            {"western_houses": "P", "ayanamsha": "kp"},
+            {"western_houses": "P", "ayanamsha": "kp", "nodes": "mean"},
             sidereal=True
         )
 
