@@ -1,237 +1,60 @@
-# Advanced Astrology Features Guide
+# Advanced chart guide
 
-This document provides detailed documentation for the advanced astrology modules in astrology-skill.
+Use Python 3.11 or newer and install [the calculator](../README.md#run-the-calculator). The example uses fictional birth data and requests every advanced calculation.
 
-## Table of Contents
-
-1. [Composite and Relationship Charts](#composite-and-relationship-charts)
-2. [Progressions and Returns](#progressions-and-returns)
-3. [Relocation Charts](#relocation-charts)
-4. [Shadbala (Six-fold Strength)](#shadbala-six-fold-strength)
-5. [Ashtakavarga (Bindu System)](#ashtakavarga-bindu-system)
-6. [KP and Jaimini Systems](#kp-and-jaimini-systems)
-
----
-
-## Composite and Relationship Charts
-
-**Module:** `scripts/composite_charts.py`
-
-### Midpoint Composite Chart
-
-The midpoint composite calculates the average of two natal charts. It's useful for understanding the "relationship personality" — what the partnership together creates.
-
-```python
-from composite_charts import midpoint_chart
-
-# Calculate midpoint composite
-composite = midpoint_chart(chart_a, chart_b, latitude, longitude, settings)
+```sh
+hermes-astrology --input assets/request.advanced.example.json --out reports/advanced
 ```
 
-### Davison Relationship Chart
+You can also run `python scripts/chart_engine.py` with the same arguments from a checkout. Open `reports/advanced/chart.json` and look under `advanced` for the requested results. The accompanying HTML atlas shows the natal charts and transit tables. The optional request leaves the normal natal and transit workflow available with the same input fields.
 
-The Davison chart finds the midpoint in time and space between two births. It represents the "joint entity" of the relationship.
+## Request fields
 
-```python
-from composite_charts import davison_chart
+Add an `advanced` object to a [normal request](input.md). The object can contain any combination of these keys.
 
-davison = davison_chart(birth_dt_a, birth_dt_b, latitude, longitude, settings)
-```
+| Key | Value | Result |
+| --- | --- | --- |
+| `composite` | Second birth object with date, local time, IANA timezone, latitude, longitude, and `fold` when needed | Shortest-arc midpoint positions and inter-chart major aspects, using the configured aspect orb |
+| `composite.davison_location` | Optional object with latitude and longitude | House chart for the exact UTC midpoint between the two births at the supplied coordinates |
+| `progressions` | `true`, with the root `as_of` field set | Secondary progressions at the target instant |
+| `relocation` | Object with destination latitude and longitude | Natal planets with houses and angles recalculated at the destination |
+| `solar_return` | Integer near-birthday year, 1800–2399 | Sun's return to its natal longitude near the UTC birthday in that year |
+| `lunar_return` | ISO timestamp with a UTC offset | Moon's return to its natal longitude closest to that instant |
+| `vedic` | List containing any of `shadbala`, `ashtakavarga`, `kp`, and `jaimini` | Selected Jyotisha calculations |
 
-### Synastry Aspects
+For latitude and longitude, use decimal degrees with north and east positive. See the [complete request](../assets/request.advanced.example.json). `chart.json` retains the input, including both birth records when calculating a composite.
 
-Calculate how one person's planets aspect another person's chart.
+## Western methods
 
-```python
-from composite_charts import synastry_aspects
+- **Composite and synastry.** The midpoint method averages each pair of longitudes along the shorter arc, including the Ascendant and Midheaven. At exact opposition, either arc is equally short and the implementation chooses the midpoint 90° past the smaller normalized longitude. The midpoint result contains positions and angles. The optional Davison calculation uses your supplied location, so enter a geographic midpoint yourself if that is the convention you want. Synastry lists the inter-chart pairs and their exact orb.
+- **Secondary progressions.** Each 365.25 days elapsed from birth moves the ephemeris time forward by one day. The result records the target instant, progressed instant, age, and the chart for the progressed instant at the birth location. The target must be at or after birth.
+- **Returns.** The engine brackets the tropical longitude crossing and narrows it numerically. Solar returns use a three-day window on either side of the UTC birthday. February 29 uses February 28 as the search anchor in common years. Lunar returns use a 16-day window on either side of the target. The result records the UTC instant and residual orb. Both use the birth location for house calculation.
+- **Relocation.** The birth UTC instant stays fixed. Changing location changes the angles, cusps, and house placements. Geocentric planetary longitudes stay the same. If the requested Western house system fails at a high latitude, request a supported house system explicitly.
 
-aspects = synastry_aspects(chart_a, chart_b, orb=6)
-```
+## Jyotisha methods
 
----
+| System | What the report computes | Scope |
+| --- | --- | --- |
+| [Shadbala](../references/shadbala.md) | Sthana, Dig, Kala, Cheshta, Naisargika, and Drik estimates, with Uccha included in Sthana | Results carry their assumptions. Kala and Cheshta use clock time and motion direction. The total has no classical pass threshold. |
+| [Ashtakavarga](../references/ashtakavarga.md) | Bhinna rows for seven grahas, Sarva sums by sign, and the totals in house order | Unreduced tables with eight contributors per row, including Lagna. The twelve Sarva totals sum to 337. |
+| [KP](../references/kp-jaimini.md#krishnamurti-paddhati) | Star, sub, and sub-sub lords for planets and cusps, natal house of each cusp's sub lord, and natal ruling-planet factors | Uses a dedicated Krishnamurti sidereal Placidus chart. The main Jyotisha chart keeps its selected ayanamsha and whole-sign houses. The result covers these factors rather than a full KP event workflow. |
+| [Jaimini](../references/kp-jaimini.md#jaimini) | Seven chara karakas and Rashi Drishti sign aspects | Uses the main sidereal chart. Chara Dasha is marked unavailable pending a documented school-specific implementation. |
 
-## Progressions and Returns
-
-**Module:** `scripts/progressions.py`
-
-### Secondary Progressions
-
-Day-for-a-year method: one day after birth equals one year of life.
-
-```python
-from progressions import secondary_progressions
-
-prog = secondary_progressions(birth_dt, target_dt, lat, lon, settings)
-```
-
-### Solar Return
-
-Calculate the chart for when the transiting Sun returns to its natal position.
-
-```python
-from progressions import solar_return
-
-sr = solar_return(birth_dt, year, lat, lon, settings)
-```
-
-### Lunar Return
-
-Find when the transiting Moon returns to its natal position.
-
-```python
-from progressions import lunar_return
-
-lr = lunar_return(birth_dt, target_month, lat, lon, settings)
-```
-
----
-
-## Relocation Charts
-
-**Module:** `scripts/relocation.py`
-
-### Locality Chart
-
-Recalculate the same birth moment at a new geographic location. Planet positions remain the same; only angles and houses change.
-
-```python
-from relocation import relocation_chart
-
-relocated = relocation_chart(natal_chart_data, new_lat, new_lon, settings)
-```
-
----
-
-## Shadbala (Six-fold Strength)
-
-**Module:** `scripts/shadbala.py`
-
-Shadbala is the six-fold strength system from the Brihat Par Hora Shastra (BPHS).
-
-### Components
-
-| Component | Description | Max Points |
-|-----------|-------------|------------|
-| Sthana Bala | Positional strength (sign placement) | 60 |
-| Dig Bala | Directional strength (houses) | 60 |
-| Cheshta Bala | Motional strength (retrograde) | 60 |
-| Kala Bala | Temporal strength (day/night) | 60 |
-| Uccha Bala | Exaltation strength | 60 |
-| Naisa Bala | Aspect strength | 60 |
-| Drik Bala | Benefic aspect strength | 60 |
-
-### Usage
-
-```python
-from shadbala import calculate_shadbala
-
-strength = calculate_shadbala(chart_data)
-```
-
-Each planet gets a total score. Traditional interpretation thresholds:
-- **Purnabala**: > 60% of total possible
-- **Madhyabala**: 40-60%
-- **Durbala**: < 40%
-
----
-
-## Ashtakavarga (Bindu System)
-
-**Module:** `scripts/ashtakavarga.py`
-
-Ashtakavarga assigns bindu (points) to each sign based on planetary strength.
-
-### Types
-
-- **Bhinnashtakavarga**: Individual planet scores per sign
-- **Sarvashtakavarga**: Total scores per sign (sum of all planets)
-- **Samudaya**: Planetary strength by house
-- **Kudumba**: Planetary strength by sign
-
-### Usage
-
-```python
-from ashtakavarga import calculate_ashtakavarga
-
-av = calculate_ashtakavarga(chart_data)
-```
-
-Traditional Sarvashtakavarga interpretation:
-- **28+**: Very strong sign
-- **24-27**: Strong
-- **20-23**: Average
-- **< 20**: Weak
-
----
-
-## KP and Jaimini Systems
-
-**Module:** `scripts/kp_system.py`
-
-### KP (Krishnamurti Paddhati)
-
-KP uses a different subdivision system based on nakshatras and their sub-portions.
-
-```python
-from kp_system import calculate_kp
-
-kp = calculate_kp(chart_data)
-```
-
-Key KP concepts:
-- **Star/Sign Lord**: Which nakshatra and sign governs a position
-- **Sub Lord**: 1/9 subdivision of a star portion
-- **Sub-Sub Lord**: Further 1/9 subdivision
-- **Ruling Planet**: Used for timing and predictions
-- **Cuspal Interlink**: Which houses are connected via cusp sub-lords
-
-### Jaimini
-
-Jaimini uses a different karma/strength system.
-
-```python
-from kp_system import calculate_jaimini
-
-jm = calculate_jaimini(chart_data, birth_jd, as_of_dt)
-```
-
-Jaimini features:
-- **7-Karaka Scheme**: AK (Atmakaraka) through SK (Shatru Karaka)
-- **Chara Dasha**: Variable-length periods based on karakas
-- **Rashi Drishti**: Special aspects based on sign type
-
----
-
-## Complete Example
+## Python usage
 
 ```python
 import json
-from datetime import datetime
+from pathlib import Path
 
-# Load a chart
-with open('chart.json') as f:
-    chart = json.load(f)
+from chart_engine import calculate
 
-# Calculate multiple systems
-from shadbala import calculate_shadbala
-from ashtakavarga import calculate_ashtakavarga
-from kp_system import calculate_jaimini
-
-results = {
-    'shadbala': calculate_shadbala(chart),
-    'ashtakavarga': calculate_ashtakavarga(chart),
-    'jaimini': calculate_jaimini(chart)
-}
-
-print(json.dumps(results, indent=2))
+request = json.loads(Path("assets/request.advanced.example.json").read_text(encoding="utf-8"))
+report = calculate(request)
+print(report["advanced"]["vedic"]["ashtakavarga"]["sarva"]["sign_totals"])
 ```
 
----
+For a direct module API, see the functions in [composite_charts.py](../scripts/composite_charts.py), [progressions.py](../scripts/progressions.py), and [relocation.py](../scripts/relocation.py). Standalone sidereal calculations accept a chart settings dictionary containing the desired ayanamsha and node mode. The relocation module also offers a coarse single-latitude ecliptic planet-angle search.
 
-## Limitations
+## Verification
 
-These advanced modules are early-stage implementations:
-- Cross-check against a trusted reference before publishing
-- Test vectors are not yet fully validated
-- Some simplifications may differ from traditional calculations
-- KP and Jaimini require Krishnamurti ayanamsha settings
+The automated suite checks a worked Ashtakavarga table against the source text, KP subdivision examples, and chart invariants such as unchanged relocation longitudes and small return orbs. For comparison with external software, match the UTC instant, coordinates, sidereal mode, node mode, house system, and calculation variant first. See the [validation report](validation-report.md) for external chart validation status.

@@ -21,7 +21,10 @@ classifiers = [
 hermes-astrology = "chart_engine:cli"
 
 [tool.setuptools]
-py-modules = ["chart_engine"]
+py-modules = [
+    "chart_engine", "engine_utils", "advanced", "composite_charts", "progressions",
+    "relocation", "shadbala", "ashtakavarga", "kp_system",
+]
 package-dir = {"" = "scripts"}
 
 [tool.ruff]

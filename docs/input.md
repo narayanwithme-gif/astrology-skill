@@ -26,7 +26,7 @@ Nonexistent local times during a DST transition are rejected. Repeated local tim
 | Field under `settings` | Default | Options |
 | --- | --- | --- |
 | `western_houses` | `P` | `P` Placidus, `W` whole sign, `E` equal, `K` Koch, `O` Porphyry |
-| `ayanamsha` | `lahiri` | `lahiri`, `raman`, `krishnamurti` |
+| `ayanamsha` | `lahiri` | `lahiri`, `raman`, `krishnamurti` (alias `kp`), `drik` (True Chitra) |
 | `nodes` | `mean` | `mean`, `true` |
 | `dasha_year_days` | `365.25` | Fixed year length from 350 to 370 days |
 | `aspect_orb_degrees` | `6` | Uniform major-aspect orb, 0–12 degrees |
@@ -44,3 +44,5 @@ All longitudes are in `[0, 360)`. Sign indexes begin with Aries at 0; houses are
 The output identifies the engine, dependency versions, UTC conversion and settings. `chart.json` retains the original request, so treat it as private when it contains real data.
 
 The calculator writes `chart.json`, `charts.html` and `calculation.md`. A malformed request or failed calculation returns exit code 2. Existing report files are not overwritten. Error output is JSON on stderr, except standard command-line usage errors.
+
+Add the optional `advanced` object for relationship charts, progressions, returns, relocation, or the Jyotisha modules. See the [advanced chart guide](advanced-features.md) and [fictional request](../assets/request.advanced.example.json).

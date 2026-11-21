@@ -14,18 +14,18 @@ The calculator produces chart data, diagrams, planetary periods and transit tabl
 | Western natal | Tropical positions, Ascendant, Midheaven, houses and five major aspects |
 | House systems | Placidus, whole sign, equal, Koch and Porphyry |
 | Jyotisha | Sidereal positions, whole-sign Rashi houses and Parashari sign-based graha drishti |
-| Ayanamsha | Lahiri, Raman and Krishnamurti |
+| Ayanamsha | Lahiri, Raman, Krishnamurti and Drik (True Chitra) |
 | Divisional charts | D9 Navamsha and D10 Dashamsha using the stated Parashari rules |
 | Lunar data | Moon nakshatra, pada and tithi at the birth instant |
 | Periods | Vimshottari birth balance, mahadashas and antardashas |
 | Timing | Western transit aspects; Jyotisha gochara houses and graha drishti |
 | Composite charts | Midpoint composite and Davison relationship charts |
 | Progressions | Secondary progressions (day-for-a-year), solar and lunar returns |
-| Relocation | Locality charts, astrocartography line calculations |
-| Shadbala | Six-fold strength (Sthana, Dig, Cheshta, Kala, Uccha, Drik) per BPHS |
-| Ashtakavarga | Bhinna/Sarva/Kudumba/Samudaya bindu scores per Phaladeepika |
-| KP system | Star/Sub/Sub-Sub lords, Ruling Planet, Cuspal Interlink |
-| Jaimini | 7-Karaka scheme, Chara Dasha, Rashi Drishti special aspects |
+| Relocation | Locality charts for the natal instant at new coordinates |
+| Shadbala | Estimates for the six strength components, with degree-based Uccha |
+| Ashtakavarga | Chart-dependent Bhinna and Sarva bindu counts using the unreduced 337-point table |
+| KP system | Star, sub, and sub-sub lords for planets and Placidus cusps |
+| Jaimini | Seven chara karakas and Rashi Drishti |
 | Data checks | Historical timezones, repeated/nonexistent local times and birth-time uncertainty endpoints |
 | Output | JSON, a standalone HTML chart atlas and a Markdown calculation record |
 
@@ -33,7 +33,7 @@ Calculations run locally through PySwissEph with the Moshier analytical ephemeri
 
 ## Requirements
 
-- Python 3.11 or newer.
+- Python 3.11 or newer. On Windows, PySwissEph needs the Microsoft Visual C++ runtime. Python versions without a prebuilt PySwissEph wheel also need a C/C++ build toolchain.
 - Hermes for assisted readings. The calculator also works by itself.
 - Internet access for the initial dependency installation. Calculations work offline afterward.
 
@@ -63,53 +63,6 @@ Start a new Hermes chat so its skill catalog is refreshed. Say:
 
 Automatic selection depends on Hermes and the model. Naming the skill explicitly is the fallback.
 
-## Advanced Vedic and Western systems
-
-Beyond the core chart engine, additional calculation modules are available:
-
-### Composite and Relationship Charts
-| Function | Module |
-| --- | --- |
-| Midpoint composite (relationship) | `scripts/composite_charts.py` |
-| Davison relationship chart | `scripts/composite_charts.py` |
-| Synastry inter-chart aspects | `scripts/composite_charts.py` |
-
-### Progressions and Returns
-| Function | Module |
-| --- | --- |
-| Secondary progressions (day-for-a-year) | `scripts/progressions.py` |
-| Solar return charts | `scripts/progressions.py` |
-| Lunar return charts | `scripts/progressions.py` |
-
-### Relocation and Astrocartography
-| Function | Module |
-| --- | --- |
-| Relocation (locality) charts | `scripts/relocation.py` |
-| Astrocartography planet-angle lines | `scripts/relocation.py` |
-
-### Shadbala (Vedic Strength)
-| Function | Module |
-| --- | --- |
-| Sthana, Dig, Cheshta, Kala, Uccha, Drik, Naisa Bala | `scripts/shadbala.py` |
-| Total Shadbala for all planets | `scripts/shadbala.py` |
-
-### Ashtakavarga (Vedic Bindu System)
-| Function | Module |
-| --- | --- |
-| Bhinnashtakavarga (per planet) | `scripts/ashtakavarga.py` |
-| Sarvashtakavarga (per sign totals) | `scripts/ashtakavarga.py` |
-| Samudaya and Kudumba tables | `scripts/ashtakavarga.py` |
-
-### KP and Jaimini
-| Function | Module |
-| --- | --- |
-| Star/Sub/Sub-Sub lord tables | `scripts/kp_system.py` |
-| KP Ruling Planet | `scripts/kp_system.py` |
-| Cuspal Interlink | `scripts/kp_system.py` |
-| Jaimini 7-Karaka scheme (AK, AmK, BK…) | `scripts/kp_system.py` |
-| Jaimini Chara Dasha | `scripts/kp_system.py` |
-| Jaimini Rashi Drishti (special aspects) | `scripts/kp_system.py` |
-
 ## Run the calculator
 
 With the environment activated, install the command-line entry point:
@@ -126,6 +79,14 @@ python scripts/chart_engine.py --input assets/request.example.json --out reports
 ```
 
 Open `reports/demo/charts.html` in a browser. Choose a new output directory for each run; the calculator refuses to overwrite report files.
+
+## Run an advanced report
+
+```sh
+hermes-astrology --input assets/request.advanced.example.json --out reports/advanced
+```
+
+Open `reports/advanced/chart.json` and look under `advanced`. The [advanced chart guide](docs/advanced-features.md) explains each input, calculation, and output, with a Python example and method references.
 
 The [example request](assets/request.example.json) is fictional. For a personal reading, keep your request in the ignored `private/` directory. See [input settings](docs/input.md) for the fields and conventions.
 
@@ -169,7 +130,7 @@ npx skills add narayanwithme-gif/astrology-skill
 
 Astrology is treated here as a traditional symbolic practice. Its interpretations are not scientifically established predictions.
 
-The calculator does not implement Shadbala, Ashtakavarga, KP, Jaimini, Guna Milan, a complete Panchanga, exact transit-event searches, rectification or divisional charts beyond D9/D10. The skill tells the assistant to identify missing calculations instead of inventing them. See [calculation conventions](references/calculation.md).
+The [advanced chart guide](docs/advanced-features.md#jyotisha-methods) describes the scope of Shadbala, Ashtakavarga, KP and Jaimini. A complete Panchanga, general transit-event searches, rectification and divisional charts beyond D9/D10 remain outside the calculator's scope. See [calculation conventions](references/calculation.md).
 
 Internal tests check arithmetic, settings and failure handling. They are not an independent astronomical cross-check or evidence of predictive accuracy. Birth-time uncertainty checks compare endpoints; they do not inspect every instant within the interval.
 
@@ -183,7 +144,7 @@ ruff format --check .
 python -m build
 ```
 
-GitHub Actions is configured to run tests and package checks on Windows and Linux. Local checks were run on Windows with Python 3.14; the hosted matrix runs after upload. To rebuild the fictional sample and README diagram:
+GitHub Actions runs the test suite and an installed-command smoke test on Windows and Linux. To rebuild the fictional sample and README diagram:
 
 ```sh
 python scripts/build_example.py

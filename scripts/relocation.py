@@ -2,7 +2,9 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 """Relocation (locality) chart calculations."""
 
-from chart_engine import make_chart, jd_at
+from datetime import datetime
+
+from chart_engine import jd_at, make_chart, set_ayanamsha
 
 
 def relocation_chart(natal_chart_data, new_lat, new_lon, settings):
@@ -22,28 +24,36 @@ def relocation_chart(natal_chart_data, new_lat, new_lon, settings):
     Returns:
         Relocated chart with new angles and houses
     """
-    # Extract birth datetime from natal chart
-    birth_dt = natal_chart_data.get('birth_datetime')
+    # Accept the full calculator report and the original standalone input shape.
+    if 'provenance' in natal_chart_data:
+        birth_dt = natal_chart_data['provenance']['birth_utc']
+        natal_location = natal_chart_data['input']['birth']
+        natal_zodiac = 'tropical'
+    else:
+        birth_dt = natal_chart_data.get('birth_datetime')
+        natal_location = natal_chart_data
+        natal_zodiac = natal_chart_data['zodiac']
     if not birth_dt:
         raise ValueError("natal_chart_data must include 'birth_datetime' field")
 
-    from datetime import datetime
     if isinstance(birth_dt, str):
         birth_dt = datetime.fromisoformat(birth_dt)
+    if birth_dt.utcoffset() is None:
+        raise ValueError('Relocation requires a birth timestamp with a UTC offset')
 
     # Calculate JD for birth moment
     jd = jd_at(birth_dt)
 
     # Recalculate chart at new location
-    sidereal = settings.get('zodiac') == 'sidereal' or natal_chart_data['zodiac'] == 'sidereal'
+    sidereal = settings.get('zodiac', natal_zodiac) == 'sidereal'
     relocated = make_chart(jd, new_lat, new_lon, settings, sidereal)
 
     # Add metadata
     relocated['type'] = 'relocation'
     relocated['method'] = 'Locality chart - natal planets at relocated angles'
     relocated['natal_location'] = {
-        'latitude': natal_chart_data.get('latitude'),
-        'longitude': natal_chart_data.get('longitude')
+        'latitude': natal_location.get('latitude'),
+        'longitude': natal_location.get('longitude')
     }
     relocated['relocated_location'] = {
         'latitude': new_lat,
@@ -90,6 +100,7 @@ def astrocartography_line(planet_name, line_type, latitude, birth_jd, settings):
     flags = swe.FLG_MOSEPH | swe.FLG_SPEED
 
     if settings.get('zodiac') == 'sidereal':
+        set_ayanamsha(settings)
         flags |= swe.FLG_SIDEREAL
 
     # Get planet position

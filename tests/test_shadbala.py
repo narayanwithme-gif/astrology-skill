@@ -76,6 +76,20 @@ class TestShadbala(unittest.TestCase):
             self.assertIn('sthana_bala', p_data)
             self.assertIn('total', p_data)
 
+    def test_exact_exaltation_and_natural_strength(self):
+        from shadbala import calculate_shadbala, uccha_bala
+
+        self.assertEqual(uccha_bala("Sun", 10), 60)
+        self.assertEqual(uccha_bala("Sun", 190), 0)
+        self.assertEqual(uccha_bala("Sun", 100), 30)
+        planets = calculate_shadbala(self.chart)["planets"]
+        self.assertEqual(planets["Sun"]["naisargika_bala"], 60)
+        self.assertAlmostEqual(planets["Saturn"]["naisargika_bala"], 60 / 7)
+        sun = planets["Sun"]
+        self.assertAlmostEqual(
+            sun["total"], sum(value for key, value in sun.items() if key not in ("uccha_bala", "total"))
+        )
+
 
 class TestAshtakavarga(unittest.TestCase):
     """Tests for Ashtakavarga calculations."""
@@ -122,6 +136,21 @@ class TestAshtakavarga(unittest.TestCase):
         result = sarva_ashtakavarga(self.chart)
         self.assertIn('sign_totals', result)
         self.assertEqual(len(result['sign_totals']), 12)
+        self.assertEqual(sum(result["sign_totals"]), 337)
+        self.assertEqual(
+            [sum(row) for row in result["planets"].values()], [48, 49, 39, 54, 56, 52, 39]
+        )
+
+    def test_brihat_jataka_mars_worked_example(self):
+        from ashtakavarga import binnasha_varga
+
+        signs = dict(Sun=0, Moon=1, Mercury=1, Jupiter=3, Saturn=6, Mars=9, Venus=11)
+        chart = {
+            "zodiac": "sidereal",
+            "planets": {planet: {"sign_index": sign} for planet, sign in signs.items()},
+            "ascendant": {"sign_index": 11},
+        }
+        self.assertEqual(binnasha_varga(chart)["Mars"], [3, 3, 3, 4, 5, 2, 5, 1, 2, 5, 3, 3])
 
     def test_calculate_ashtakavarga(self):
         """Test complete ashtakavarga calculation."""
@@ -151,7 +180,7 @@ class TestKPAndJaimini(unittest.TestCase):
             cls.birth["latitude"],
             cls.birth["longitude"],
             {"western_houses": "P", "ayanamsha": "kp", "nodes": "mean"},
-            sidereal=True
+            sidereal=True, house_system="P"
         )
 
     def test_kp_import(self):
@@ -178,7 +207,23 @@ class TestKPAndJaimini(unittest.TestCase):
         from kp_system import jaimini_karakas
         result = jaimini_karakas(self.chart)
         self.assertIn('AK', result)
-        self.assertIn('SK', result)
+        self.assertIn('DK', result)
+        degrees = [v["degree_in_sign"] for v in result.values() if isinstance(v, dict)]
+        self.assertEqual(degrees, sorted(degrees, reverse=True))
+
+    def test_kp_unequal_subdivisions(self):
+        from kp_system import subdivision
+
+        for longitude, expected in [
+            (0, ("Ketu", "Ketu", "Ketu")),
+            (0.1, ("Ketu", "Ketu", "Venus")),
+            (0.8, ("Ketu", "Venus", "Venus")),
+            (13.34, ("Venus", "Venus", "Venus")),
+        ]:
+            result = subdivision(longitude)
+            self.assertEqual(
+                tuple(result[key] for key in ("star_lord", "sub_lord", "sub_sub_lord")), expected
+            )
 
     def test_jaimini_special_aspects(self):
         """Test Jaimini special aspects."""
@@ -187,6 +232,15 @@ class TestKPAndJaimini(unittest.TestCase):
         self.assertEqual(result['status'], 'computed')
         self.assertIn('aspects', result)
         self.assertIsInstance(result['aspects'], list)
+        aries = {
+            "ascendant": {"sign_index": 0},
+            "planets": {name: {"sign_index": 0} for name in self.chart["planets"]},
+        }
+        aspects = jaimini_special_aspects(aries)["aspects"]
+        self.assertEqual(
+            {row["target_sign"] for row in aspects if row["graha"] == "Sun"},
+            {"Leo", "Scorpio", "Aquarius"},
+        )
 
     def test_calculate_kp(self):
         """Test complete KP analysis."""

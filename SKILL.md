@@ -17,13 +17,10 @@ Produce reproducible chart data before interpretation. Keep Western and Jyotisha
 - **Compare people:** calculate separately with identical settings within each tradition, then use the compatibility procedure in `references/interpretation.md`.
 - **Lesson:** read `references/learning.md`. Teach one lesson at a time; a lesson needs no birth data unless practicing a chart.
 - **Compare people / Guna Milan:** calculate both charts separately (identical ayanamsha within a pair), then run `scripts/guna_milan.py --chart-a A.json --chart-b B.json` for the deterministic Ashtakoota 36 (Varna, Vashya, Tara, Yoni, Graha Maitri, Gana, Bhakoot, Nadi) + modern 0–100 synastry (total/36×100). Read `references/guna-milan.md`. Report the breakdown + dosha flags; the 36 is a traditional count, not a prediction.
-- **Composite / Relationship:** use `scripts/composite_charts.py` for midpoint composite or Davison chart; `synastry_aspects()` for inter-chart aspects. Disclose method and settings.
-- **Progressions / Returns:** use `scripts/progressions.py` for secondary progressions (day-for-a-year), solar or lunar returns. State the target date and age in years.
-- **Relocation / Astrocartography:** use `scripts/relocation.py` for locality charts or planet-angle line calculations at a latitude.
-- **Shadbala (Vedic strength):** use `scripts/shadbala.py` for Sthana/Dig/Cheshta/Kala/Uccha/Drik Bala. Report per-planet totals. Disclose that this is a simplified BPHS implementation; full test vectors required before claiming accuracy.
-- **Ashtakavarga (Vedic bindu):** use `scripts/ashtakavarga.py` for Sarva/Bhinna/Kudumba/Samudaya scores. Per-planet and per-sign bindu tables are available; cross-check against a reference before publishing.
-- **KP system:** use `scripts/kp_system.py` for Star/Sub/Sub-Sub lords, Ruling Planet, and Cuspal Interlink. Requires Krishnamurti ayanamsha. Do not substitute Lahiri for KP.
-- **Jaimini:** use `scripts/kp_system.py` for 7-Karaka scheme (AK/SK etc.), Chara Dasha, and Rashi Drishti special aspects. Do not confuse with Parashari graha drishti.
+- **Composite and synastry:** add `advanced.composite` with the second birth record. To include a Davison chart, collect the desired calculation coordinates as `davison_location`.
+- **Progressions and returns:** add `advanced.progressions` with an explicit `as_of`, `advanced.solar_return` with a year, or `advanced.lunar_return` with a target timestamp. State the target and the computed instant.
+- **Relocation:** add `advanced.relocation` with the destination coordinates. Discuss the changed houses and angles for the same birth instant.
+- **Shadbala, Ashtakavarga, KP, and Jaimini:** request the relevant entries in `advanced.vedic` and follow the method limits in `docs/advanced-features.md`. Describe Shadbala as an estimate. KP uses its own Krishnamurti Placidus chart. Jaimini covers seven karakas and Rashi Drishti. Mark Chara Dasha as unavailable.
 - **Fortune Report:** read `references/fortune-report.md`. The user asks for a branded "Fortune Report" like a sample PDF (purple cover, Index 01–16, Lucky Things, Mulank/Bhagyank, Lo Shu Grid, career, month-wise, Life-Path). Calculate with `chart_engine.py` as usual, derive numerology from the user's own DOB + name (never copy sample-report data), then build HTML + PDF with `scripts/fortune_report.py` and write the full interpretation prose following the Fortune template in `references/fortune-report.md`. No remedies/gems prescribed, especially for minors; no health/finance prediction; approximate birth times carry the uncertainty caveat.
 - **Language:** read `references/templates.md`. Default `en`. If the user wants Hindi (`hi`), Hinglish (`hinglish`), Marathi (`mr`), Odia (`or`) or English, generate with that template (`--lang`) and `scripts/pdf_export.py` for PDF. Never force a language the user didn't ask for.
 - **Existing chart:** transcribe placements and settings, flag unreadable or missing details, and distinguish supplied data from independently computed data.
@@ -41,7 +38,7 @@ Defaults, disclosed before interpretation: Western tropical + Placidus; Jyotisha
 
 ## 2. Calculate
 
-Read `references/calculation.md` and use `scripts/chart_engine.py`. Build a private request JSON using `assets/request.example.json`; the example uses fictional birth data. Resolve paths relative to this SKILL.md.
+Read `references/calculation.md` and use `scripts/chart_engine.py`. Build a private request JSON using `assets/request.example.json`. For additional systems, read `docs/advanced-features.md` and see `assets/request.advanced.example.json`. Both requests use fictional data. Resolve paths relative to this SKILL.md.
 
 Use the skill-local `.venv` created by `scripts/setup.ps1` (Windows) or `scripts/setup.sh` (Linux/macOS). Resolve the interpreter and script paths from this skill's directory, not the current working directory. If that environment is absent, ask Hermes to run the appropriate setup script or use an existing compatible environment with `requirements.txt` installed.
 
@@ -73,7 +70,7 @@ For complete analysis cover all 12 houses in each tradition and synthesize ident
 
 Distinguish **calculated fact**, **traditional doctrine**, **modern interpretation**, **your inference**, and **not calculated**. Astrological interpretations are not scientifically established predictions. Explain this once plainly; do not repeat a disclaimer under every bullet.
 
-Never equate Western aspects to graha drishti, tropical signs to same-named sidereal signs, or Western dignity to every Jyotisha strength measure. A yoga/dosha needs a precise rule, supporting positions and contextual evaluation; “condition matched” is not “outcome guaranteed”. Shadbala/Ashtakavarga/KP/Jaimini are implemented in `scripts/shadbala.py`, `scripts/ashtakavarga.py`, and `scripts/kp_system.py` — use those modules rather than inventing scores. Disclose method and simplified assumptions.
+Never equate Western aspects to graha drishti, tropical signs to same-named sidereal signs, or Western dignity to every Jyotisha strength measure. A yoga/dosha needs a precise rule, supporting positions and contextual evaluation; “condition matched” is not “outcome guaranteed”. Use the computed `advanced` results in `chart.json` and disclose their method and assumptions.
 
 ## 5. Timing and output
 

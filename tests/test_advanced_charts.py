@@ -2,14 +2,20 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 """Tests for advanced chart calculations: composite, progressions, relocation."""
 
+import json
+import subprocess
+import tempfile
 import unittest
 import sys
 import os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'scripts'))
 
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta
+from pathlib import Path
 from chart_engine import make_chart, jd_at, parse_birth
+
+ROOT = Path(__file__).resolve().parents[1]
 
 
 class TestCompositeCharts(unittest.TestCase):
@@ -94,6 +100,55 @@ class TestRelocation(unittest.TestCase):
         from relocation import relocation_chart, astrocartography_line
         self.assertTrue(callable(relocation_chart))
         self.assertTrue(callable(astrocartography_line))
+
+
+class TestAdvancedReport(unittest.TestCase):
+    def test_cli_advanced_example(self):
+        with tempfile.TemporaryDirectory() as out:
+            subprocess.run(
+                [sys.executable, "scripts/chart_engine.py", "--input",
+                 "assets/request.advanced.example.json", "--out", out],
+                check=True, capture_output=True, text=True, cwd=ROOT,
+            )
+            report = json.loads((Path(out) / "chart.json").read_text(encoding="utf-8"))
+
+        advanced = report["advanced"]
+        western = report["western"]
+        relocated = advanced["relocation"]
+        self.assertEqual(relocated["planets"]["Moon"]["longitude"],
+                         western["planets"]["Moon"]["longitude"])
+        self.assertNotEqual(relocated["ascendant"], western["ascendant"])
+        composite = advanced["composite"]
+        self.assertTrue(composite["synastry_aspects"])
+        self.assertIn("midheaven", composite["midpoint_composite"])
+        self.assertEqual(composite["davison"]["location"], {"latitude": 23.9, "longitude": 75.1})
+        progressed = advanced["progressions"]
+        born = datetime.fromisoformat(progressed["birth_utc"])
+        target = datetime.fromisoformat(progressed["target_date_utc"])
+        expected = born + timedelta(days=(target - born) / timedelta(days=365.25))
+        self.assertEqual(datetime.fromisoformat(progressed["progressed_date_utc"]), expected)
+        for kind in ("solar_return", "lunar_return"):
+            self.assertLess(advanced[kind]["orb_degrees"], 1e-5)
+        vedic = advanced["vedic"]
+        self.assertEqual(vedic["ashtakavarga"]["total_bindu"], 337)
+        self.assertEqual(len(vedic["kp"]["cuspal_interlink"]), 12)
+        self.assertEqual(vedic["kp"]["ayanamsha"], "krishnamurti")
+        self.assertEqual(report["jyotisha"]["ayanamsha"], "lahiri")
+        self.assertIn("DK", vedic["jaimini"]["karakas"])
+        self.assertIn("naisargika_bala", vedic["shadbala"]["planets"]["Sun"])
+
+    def test_midpoint_wraps_and_is_order_independent(self):
+        from composite_charts import _midpoint
+
+        self.assertEqual(_midpoint(350, 10), 0)
+        self.assertEqual(_midpoint(15, 195), _midpoint(195, 15))
+
+    def test_solar_return_for_february_29_birth(self):
+        from progressions import solar_return
+
+        birth = datetime.fromisoformat("2000-02-29T12:00:00+05:30")
+        result = solar_return(birth, 2025, 28, 77, {"western_houses": "P", "nodes": "mean"})
+        self.assertLess(result["orb_degrees"], 1e-5)
 
 
 if __name__ == "__main__":

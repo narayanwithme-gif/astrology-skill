@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Expose midpoint and Davison charts, synastry, secondary progressions, solar and lunar returns, and relocation through the calculator request.
+- Add chart-dependent Ashtakavarga, Shadbala component estimates, KP subdivisions and cusps, and Jaimini karakas and sign aspects to the advanced JSON report.
+- Fix the KP exceptions and package the helper modules used by the installed command. Exercise the advanced example in CI.
+- Document advanced inputs, conventions, and validation limits with a fictional request.
+
 ## [1.4.0] - 2026-11-06
 - **Minute-sensitivity boundary check**: `scripts/boundary_check.py` perturbs birth time ±3 min and flags D1/D9/D10 + Moon-pada flips with rectification directive
 - **Dosha parihara**: `guna_milan.evaluate_dosha_cancellations` (Nadi/Bhakoot/Mangalik flags + effective score after cancellation)

@@ -1,161 +1,136 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: AGPL-3.0-or-later
-"""Ashtakavarga - Bindu scoring system for Vedic astrology.
+"""Unreduced seven-planet Ashtakavarga from natal sidereal signs."""
 
-Implements:
-- Bhinnashtakavarga (individual planet scores per sign)
-- Sarvashtakavarga (total scores per sign)
-- Kudumba and Samudaya tables
-Per Phaladeepika and BPHS.
-"""
+from engine_utils import SIGNS
 
-import swisseph as swe
-
-from chart_engine import (
-    make_chart, jd_at, pos, BODIES, CLASSICAL, SIGNS, SIGNS_SHORT
-)
-
-
-# Sign index mapping (0=Aries, 1=Taurus, ...)
-SIGN_IDX = {sig: i for i, sig in enumerate(SIGNS)}
-
-# Standard BPHA bindu tables for each planet in each sign.
-# Values are from classical BPHS/Phaladeepika tables.
-# Table format: table[planet][sign] = bindu_score
-# Simplified standard tables for the 7 classical planets + Rahu/Ketu.
-PLANET_BINDU_TABLES = {
-    'Sun':    [5, 3, 1, 1, 4, 5, 5, 5, 4, 1, 2, 2],
-    'Moon':   [3, 3, 3, 3, 3, 3, 4, 4, 3, 2, 2, 2],
-    'Mars':   [5, 1, 2, 3, 6, 7, 5, 4, 4, 5, 3, 5],
-    'Mercury':[5, 4, 5, 5, 4, 5, 4, 5, 5, 4, 4, 4],
-    'Jupiter':[4, 4, 4, 4, 5, 5, 4, 4, 5, 5, 4, 4],
-    'Venus':  [3, 4, 4, 3, 5, 5, 3, 5, 5, 4, 4, 4],
-    'Saturn': [4, 5, 5, 4, 3, 4, 3, 4, 4, 4, 3, 4],
-    'Rahu':   [2, 2, 3, 4, 4, 5, 4, 5, 4, 3, 4, 3],
-    'Ketu':   [2, 2, 3, 4, 4, 5, 4, 5, 4, 3, 4, 3],
+# Brihat Jataka 9.1–7, Aiyar translation. Count each contributor's sign as 1.
+CONTRIBUTORS = ("Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn", "Lagna")
+BENEFIC_PLACES = {
+    "Sun": (
+        (1, 2, 4, 7, 8, 9, 10, 11),
+        (3, 6, 10, 11),
+        (1, 2, 4, 7, 8, 9, 10, 11),
+        (3, 5, 6, 9, 10, 11, 12),
+        (5, 6, 9, 11),
+        (6, 7, 12),
+        (1, 2, 4, 7, 8, 9, 10, 11),
+        (3, 4, 6, 10, 11, 12),
+    ),
+    "Moon": (
+        (3, 6, 7, 8, 10, 11),
+        (1, 3, 6, 7, 10, 11),
+        (2, 3, 5, 6, 9, 10, 11),
+        (1, 3, 4, 5, 7, 8, 10, 11),
+        (1, 4, 7, 8, 10, 11, 12),
+        (3, 4, 5, 7, 9, 10, 11),
+        (3, 5, 6, 11),
+        (3, 6, 10, 11),
+    ),
+    "Mars": (
+        (3, 5, 6, 10, 11),
+        (3, 6, 11),
+        (1, 2, 4, 7, 8, 10, 11),
+        (3, 5, 6, 11),
+        (6, 10, 11, 12),
+        (6, 8, 11, 12),
+        (1, 4, 7, 8, 9, 10, 11),
+        (1, 3, 6, 10, 11),
+    ),
+    "Mercury": (
+        (5, 6, 9, 11, 12),
+        (2, 4, 6, 8, 10, 11),
+        (1, 2, 4, 7, 8, 9, 10, 11),
+        (1, 3, 5, 6, 9, 10, 11, 12),
+        (6, 8, 11, 12),
+        (1, 2, 3, 4, 5, 8, 9, 11),
+        (1, 2, 4, 7, 8, 9, 10, 11),
+        (1, 2, 4, 6, 8, 10, 11),
+    ),
+    "Jupiter": (
+        (1, 2, 3, 4, 7, 8, 9, 10, 11),
+        (2, 5, 7, 9, 11),
+        (1, 2, 4, 7, 8, 10, 11),
+        (1, 2, 4, 5, 6, 9, 10, 11),
+        (1, 2, 3, 4, 7, 8, 10, 11),
+        (2, 5, 6, 9, 10, 11),
+        (3, 5, 6, 12),
+        (1, 2, 4, 5, 6, 7, 9, 10, 11),
+    ),
+    "Venus": (
+        (8, 11, 12),
+        (1, 2, 3, 4, 5, 8, 9, 11, 12),
+        (3, 5, 6, 9, 11, 12),
+        (3, 5, 6, 9, 11),
+        (5, 8, 9, 10, 11),
+        (1, 2, 3, 4, 5, 8, 9, 10, 11),
+        (3, 4, 5, 8, 9, 10, 11),
+        (1, 2, 3, 4, 5, 8, 9, 11),
+    ),
+    "Saturn": (
+        (1, 2, 4, 7, 8, 10, 11),
+        (3, 6, 11),
+        (3, 5, 6, 10, 11, 12),
+        (6, 8, 9, 10, 11, 12),
+        (5, 6, 11, 12),
+        (6, 11, 12),
+        (3, 5, 6, 11),
+        (1, 3, 4, 6, 10, 11),
+    ),
 }
 
 
 def binnasha_varga(chart_data):
-    """
-    Calculate Bhinna Ashtakavarga - individual planet bindu counts per sign.
-
-    For each planet, count how many of its 8 rulers (the 7 classical planets
-    + Moon) give bindu when placed in each of the 12 signs.
-
-    Args:
-        chart_data: Vedic chart from chart_engine
-
-    Returns:
-        Dictionary: {planet: {sign_index: bindu_score}}
-    """
+    """Return twelve counts (Aries through Pisces) for each classical planet."""
+    if chart_data["zodiac"] != "sidereal":
+        raise ValueError("Ashtakavarga requires a sidereal natal chart")
+    source_signs = [chart_data["planets"][planet]["sign_index"] for planet in CONTRIBUTORS[:-1]] + [
+        chart_data["ascendant"]["sign_index"]
+    ]
     result = {}
-    for planet in CLASSICAL + ['Rahu', 'Ketu']:
-        if planet not in PLANET_BINDU_TABLES:
-            continue
-        result[planet] = PLANET_BINDU_TABLES[planet][:]
+    for planet, rules in BENEFIC_PLACES.items():
+        counts = [0] * 12
+        for sign, houses in zip(source_signs, rules, strict=True):
+            for house in houses:
+                counts[(sign + house - 1) % 12] += 1
+        result[planet] = counts
     return result
 
 
 def sarva_ashtakavarga(chart_data):
-    """
-    Calculate Sarva Ashtakavarga - total bindu per sign across all planets.
-
-    Sum of all planet scores for each sign.
-
-    Args:
-        chart_data: Vedic chart
-
-    Returns:
-        List of 12 total scores (one per sign, starting Aries)
-    """
-    bindu = binnasha_varga(chart_data)
-    totals = [0] * 12
-    for planet_scores in bindu.values():
-        for sign_idx in range(12):
-            totals[sign_idx] += planet_scores[sign_idx]
+    """Sum the seven planetary rows by sign."""
+    rows = binnasha_varga(chart_data)
+    totals = [sum(column) for column in zip(*rows.values(), strict=True)]
     return {
-        'sign_totals': totals,
-        'planets': bindu,
-        'max_total': max(totals),
-        'min_total': min(totals)
+        "sign_totals": totals,
+        "planets": rows,
+        "max_total": max(totals),
+        "min_total": min(totals),
     }
 
 
 def samudaya(chart_data):
-    """
-    Calculate Samudaya scores - bindu for planets in each house.
-
-    For each house, sum the bindu of planets occupying that house
-    based on their position in the Rashi (sign).
-
-    Args:
-        chart_data: Vedic chart
-
-    Returns:
-        Dictionary: {house_number: total_bindu}
-    """
-    bindu = binnasha_varga(chart_data)
-    house_totals = {i: 0 for i in range(1, 13)}
-
-    for planet_name, planet_data in chart_data.get('planets', {}).items():
-        if planet_name not in bindu:
-            continue
-        house = planet_data.get('house', 1)
-        sign_idx = planet_data.get('sign_index', 0)
-        house_totals[house] += bindu[planet_name][sign_idx]
-
-    return house_totals
+    """Return Sarvashtakavarga totals in whole-sign house order."""
+    totals = sarva_ashtakavarga(chart_data)["sign_totals"]
+    lagna = chart_data["ascendant"]["sign_index"]
+    return {house: totals[(lagna + house - 1) % 12] for house in range(1, 13)}
 
 
 def kumbha(chart_data):
-    """
-    Calculate Kumbha scores - bindu for planets in each sign.
-
-    For each sign, sum the bindu of planets occupying that sign
-    based on their position in the sign.
-
-    Args:
-        chart_data: Vedic chart
-
-    Returns:
-        Dictionary: {sign_name: total_bindu}
-    """
-    bindu = binnasha_varga(chart_data)
-    sign_totals = {sig: 0 for sig in SIGNS}
-
-    for planet_name, planet_data in chart_data.get('planets', {}).items():
-        if planet_name not in bindu:
-            continue
-        sign = planet_data.get('sign', SIGNS[0])
-        sign_idx = planet_data.get('sign_index', 0)
-        sign_totals[sign] += bindu[planet_name][sign_idx]
-
-    return sign_totals
+    """Return Sarvashtakavarga totals by sign name."""
+    return dict(zip(SIGNS, sarva_ashtakavarga(chart_data)["sign_totals"], strict=True))
 
 
 def calculate_ashtakavarga(chart_data):
-    """
-    Complete Ashtakavarga analysis for a chart.
-
-    Args:
-        chart_data: Vedic (sidereal) chart from chart_engine
-
-    Returns:
-        Full Ashtakavarga result dictionary
-    """
+    sarva = sarva_ashtakavarga(chart_data)
+    totals = sarva["sign_totals"]
+    lagna = chart_data["ascendant"]["sign_index"]
     return {
-        'status': 'computed',
-        'method': 'BPHS/Phaladeepika Ashtakavarga',
-        'sarva': sarva_ashtakavarga(chart_data),
-        'samudaya': samudaya(chart_data),
-        'kumbha': kumbha(chart_data),
-        'bhinnashtakavarga': binnasha_varga(chart_data),
-        'total_bindu': sum(sarva_ashtakavarga(chart_data)['sign_totals']),
-        'max_possible': 2160,  # 7 planets * 12 signs * avg max
+        "status": "computed",
+        "method": "Brihat Jataka 9.1–7 (unreduced)",
+        "sarva": sarva,
+        "samudaya": {house: totals[(lagna + house - 1) % 12] for house in range(1, 13)},
+        "kumbha": dict(zip(SIGNS, totals, strict=True)),
+        "bhinnashtakavarga": sarva["planets"],
+        "total_bindu": sum(totals),
     }
-
-
-if __name__ == '__main__':
-    print("Ashtakavarga module")
-    print("Usage: from ashtakavarga import calculate_ashtakavarga")

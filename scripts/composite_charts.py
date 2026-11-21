@@ -2,12 +2,17 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 """Composite and relationship chart calculations."""
 
-import sys
-from datetime import datetime, timezone
+from datetime import timezone
 
-import swisseph as swe
+from chart_engine import jd_at, make_chart, pos
 
-from chart_engine import make_chart, jd_at, pos
+
+def _midpoint(a, b):
+    difference = (b - a + 180) % 360 - 180
+    if difference == -180:
+        # Exact oppositions have two equally short arcs. Choose a stable axis.
+        return (min(a, b) + 90) % 360
+    return (a + difference / 2) % 360
 
 
 def midpoint_chart(chart_a, chart_b, lat, lon, settings):
@@ -24,6 +29,8 @@ def midpoint_chart(chart_a, chart_b, lat, lon, settings):
     Returns:
         Composite chart with midpoint positions
     """
+    if chart_a["zodiac"] != chart_b["zodiac"] or chart_a.get("ayanamsha") != chart_b.get("ayanamsha"):
+        raise ValueError("Composite charts require matching zodiac and ayanamsha")
     planets_composite = {}
 
     for planet in chart_a['planets'].keys():
@@ -33,33 +40,20 @@ def midpoint_chart(chart_a, chart_b, lat, lon, settings):
         lon_a = chart_a['planets'][planet]['longitude']
         lon_b = chart_b['planets'][planet]['longitude']
 
-        # Calculate shorter arc midpoint
-        diff = (lon_b - lon_a) % 360
-        if diff > 180:
-            midpoint_lon = (lon_a - (360 - diff) / 2) % 360
-        else:
-            midpoint_lon = (lon_a + diff / 2) % 360
-
         planets_composite[planet] = {
-            **pos(midpoint_lon),
+            **pos(_midpoint(lon_a, lon_b)),
             'method': 'midpoint',
             'source_a_longitude': lon_a,
             'source_b_longitude': lon_b
         }
 
-    # Calculate composite Ascendant as midpoint
-    asc_a = chart_a['ascendant']['longitude']
-    asc_b = chart_b['ascendant']['longitude']
-    diff = (asc_b - asc_a) % 360
-    if diff > 180:
-        composite_asc = (asc_a - (360 - diff) / 2) % 360
-    else:
-        composite_asc = (asc_a + diff / 2) % 360
-
     return {
         'type': 'midpoint_composite',
         'zodiac': chart_a['zodiac'],
-        'ascendant': pos(composite_asc),
+        'ascendant': pos(_midpoint(chart_a['ascendant']['longitude'],
+                                   chart_b['ascendant']['longitude'])),
+        'midheaven': pos(_midpoint(chart_a['midheaven']['longitude'],
+                                   chart_b['midheaven']['longitude'])),
         'planets': planets_composite,
         'method': 'Midpoint method - average of two natal charts',
         'chart_a_reference': chart_a.get('birth', {}).get('date'),
@@ -92,7 +86,8 @@ def davison_chart(birth_a, birth_b, lat, lon, settings):
     chart = make_chart(jd, lat, lon, settings, sidereal)
 
     chart['type'] = 'davison_relationship'
-    chart['method'] = 'Davison method - midpoint in time and space'
+    chart['method'] = 'Davison midpoint time at supplied location'
+    chart['location'] = {'latitude': lat, 'longitude': lon}
     chart['midpoint_datetime_utc'] = midpoint_time.isoformat()
     chart['birth_a_utc'] = birth_a.astimezone(timezone.utc).isoformat()
     chart['birth_b_utc'] = birth_b.astimezone(timezone.utc).isoformat()
@@ -145,10 +140,10 @@ def synastry_aspects(chart_a, chart_b, orb=6):
 
 def composite_report(chart_a, chart_b, lat, lon, settings):
     """
-    Generate complete composite analysis including both midpoint and Davison charts.
+    Generate a midpoint composite and synastry aspect table.
 
     Returns:
-        Dictionary with midpoint_composite, synastry_aspects, and optionally davison
+        Dictionary with midpoint_composite and synastry_aspects
     """
     result = {
         'midpoint_composite': midpoint_chart(chart_a, chart_b, lat, lon, settings),
