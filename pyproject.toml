@@ -19,11 +19,12 @@ classifiers = [
 
 [project.scripts]
 hermes-astrology = "chart_engine:cli"
+hermes-astrology-svg = "svg_export:cli"
 
 [tool.setuptools]
 py-modules = [
     "chart_engine", "engine_utils", "advanced", "composite_charts", "progressions",
-    "relocation", "shadbala", "ashtakavarga", "kp_system",
+    "relocation", "shadbala", "ashtakavarga", "kp_system", "svg_export",
 ]
 package-dir = {"" = "scripts"}
 

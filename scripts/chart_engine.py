@@ -764,6 +764,11 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--input", required=True, type=Path)
     ap.add_argument("--out", required=True, type=Path)
+    ap.add_argument(
+        "--svg",
+        action="store_true",
+        help="Also write standalone .svg chart files (western wheel + D1/D9/D10 north/south)",
+    )
     args = ap.parse_args()
     request = json.loads(args.input.read_text(encoding="utf-8-sig"))
     data = calculate(request)
@@ -780,22 +785,23 @@ def main():
         + "\n".join("- " + x for x in data["warnings"])
         + "\n\nSee chart.json for the full tables and charts.html for diagrams. Interpretation must be written separately in reading.md.\n"
     )
-    args.out.mkdir(parents=True, exist_ok=True)
-    for name, content in [
+    outputs = [
         ("chart.json", json_text),
         ("charts.html", html_text),
         ("calculation.md", md),
-    ]:
+    ]
+    if args.svg:
+        from svg_export import svg_files
+
+        outputs.extend(svg_files(data))
+    args.out.mkdir(parents=True, exist_ok=True)
+    for name, content in outputs:
         target = args.out / name
         if target.exists():
             raise ValueError(
                 f"Refusing to overwrite existing report: {target}; choose a new output directory"
             )
-    for name, content in [
-        ("chart.json", json_text),
-        ("charts.html", html_text),
-        ("calculation.md", md),
-    ]:
+    for name, content in outputs:
         (args.out / name).write_text(content, encoding="utf-8")
     print(
         json.dumps(
