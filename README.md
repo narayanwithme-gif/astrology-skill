@@ -18,6 +18,7 @@ The calculator produces chart data, diagrams, planetary periods and transit tabl
 | Divisional charts | D9 Navamsha and D10 Dashamsha using the stated Parashari rules |
 | Panchanga at birth instant | Vara, tithi, nakshatra, yoga and karana; explicitly not sunrise-anchored |
 | Sunrise Vedic calendar | Offline month JSON for a supplied location/timezone, with the five limbs computed at local sunrise |
+| Jyotisha indicators | Deterministic 252-template rule library (108 graha-in-bhava + 144 bhava-lord placements), with chart-specific evidence cards |
 | Festival calendar and vrata dates | Optional offline regional festival dataset and named vrata rules, sourced from PyJHora |
 | Extended dasha catalog | Optional source-backed catalog of wired dasha selectors; calculation validation varies by method |
 | Indian language breadth | Optional 22 upstream language identifiers; actual festival-name fields are available in six languages |
@@ -115,9 +116,11 @@ The [example request](assets/request.example.json) is fictional. For a personal 
 | `charts.html` | Western wheel; north and south Indian D1/D9/D10 charts; tables |
 | `calculation.md` | Engine settings, internal checks and calculation warnings |
 | `reading.md` | Written by Hermes using the skill's report instructions |
+| Vedic indicators JSON | Up to 21 chart-specific cards from a 252-template Jyotisha library — `hermes-vedic-predictions --chart chart.json --out vedic-indicators.json` |
 | `study-note.md` | Optional learning progress saved at the user's request |
 | Fortune Report (Fortune Report mode) | Branded HTML + PDF, Index 01–16, Lucky Things, numerology, Lo Shu Grid, career, month-wise, Kundali, Life-Path — `scripts/fortune_report.py --lang en|hi|hinglish|mr|or` |
 | Guna Milan 36 | Deterministic Ashtakoota (Varna, Vashya, Tara, Yoni, Graha Maitri, Gana, Bhakoot, Nadi) + modern 0–100 synastry — `scripts/guna_milan.py --chart-a A.json --chart-b B.json` |
+| Tamil Dasa Porutham | Ten source-backed checks (Dina, Gana, Mahendra, Stree Deergha, Yoni, Rasi, Rasyadhipathi, Vasya, Rajju, Vedha); can run alongside Ashtakoota |
 | Ayanamsha | Lahiri, KP (Krishnamurti), Raman via `settings.ayanamsha` |
 | Multilingual output | English, Hindi, Hinglish, Marathi, Odia templates (`references/templates.md`) + `scripts/pdf_export.py` |
 
@@ -148,6 +151,13 @@ npx skills add narayanwithme-gif/astrology-skill
 Astrology is treated here as a traditional symbolic practice. Its interpretations are not scientifically established predictions.
 
 The [advanced chart guide](docs/advanced-features.md#jyotisha-methods) describes the scope of Shadbala, Ashtakavarga, KP and Jaimini. A sunrise Panchanga month is available through the CLI. Regional festival and vrata lookups require the optional extension below. General transit-event searches, rectification and divisional charts beyond D9/D10 remain outside the calculator's scope. See [calculation conventions](references/calculation.md).
+
+The local reading includes chart-specific Jyotisha indicators from a 252-rule
+interpretive library. Generate them as standalone JSON with
+`hermes-vedic-predictions --chart reports/demo/chart.json --out reports/demo/vedic-indicators.json`.
+For match calculations, the existing Ashtakoota command also accepts
+`--method porutham10` or `--method both`. See [the source conventions and
+limits](references/vedic-insights-and-porutham.md).
 
 Generate a sunrise-based Vedic calendar for a month with the offline CLI:
 

@@ -156,17 +156,175 @@ def guna_milan(a, b):
     }
     total = sum(breakdown.values())
     doshas = []
-    if breakdown["Nadi"] == 0: doshas.append("Nadi Dosha (same nadi)")
-    if breakdown["Bhakoot"] == 0: doshas.append("Bhakoot Dosha (2-12 / 5-9 / 6-8)")
+    if breakdown["Nadi"] == 0:
+        doshas.append("Nadi Dosha (same nadi)")
+    if breakdown["Bhakoot"] == 0:
+        doshas.append("Bhakoot Dosha (2-12 / 5-9 / 6-8)")
     return {
         "breakdown": breakdown,
-        "total": total, "max": 36.0,
+        "total": total,
+        "max": 36.0,
         "doshas": doshas,
-        "modern_synastry_100": round(total/36*100, 1),
-        "band": "excellent" if total>=25 else "good" if total>=18 else "below-minimum",
+        "modern_synastry_100": round(total / 36 * 100, 1),
+        "band": "excellent" if total >= 25 else "good" if total >= 18 else "below-minimum",
         "notes": "Plain Ashtakoota count (Muhurta Chintamani). Bhakoot/Nadi cancellations not applied. Traditional count, not a prediction.",
     }
 
+
+# Classical South Indian Dasa Porutham (10 checks). The ordering below is
+# bride then groom, unlike the existing Ashtakoota API (groom then bride).
+RAJJU_GROUPS = {
+    "Pada": {0, 8, 9, 17, 18, 26},
+    "Kati": {1, 7, 10, 16, 19, 25},
+    "Nabhi": {2, 6, 11, 15, 20, 24},
+    "Kantha": {3, 5, 12, 14, 21, 23},
+    "Siro": {4, 13, 22},
+}
+RAJJU_FOR_NAK = {nak: group for group, nakshatras in RAJJU_GROUPS.items() for nak in nakshatras}
+VEDHA_PAIRS = {
+    frozenset(pair)
+    for pair in (
+        (0, 17), (1, 16), (2, 15), (3, 14), (5, 21), (6, 20), (7, 19),
+        (8, 18), (9, 26), (10, 25), (11, 24), (12, 23),
+    )
+}
+VEDHA_TRIPLE = {4, 13, 22}
+VASHYA_SIGNS = {
+    0: {4, 7}, 1: {3, 6}, 2: {5}, 3: {7, 8}, 4: {6}, 5: {2, 11},
+    6: {9}, 7: {9}, 8: {3, 5}, 9: {11}, 10: {0}, 11: {9},
+}
+YONI_BY_NAK = [
+    "horse", "elephant", "sheep", "serpent", "serpent", "dog", "cat", "ram", "cat",
+    "rat", "bandicoot", "bull", "buffalo", "tiger", "buffalo", "tiger", "doe", "stag",
+    "dog", "monkey", "cow", "monkey", "human", "horse", "human", "cow", "elephant",
+]
+YONI_HOSTILE = {"rat", "dog", "serpent", "cat", "tiger"}
+YONI_FRIENDLY = {"deer", "sheep", "horse", "dog", "human", "cat", "elephant", "cow"}
+_CLASSICAL_FRIENDS = {
+    "Sun": {"Moon", "Mars", "Jupiter"}, "Moon": {"Sun", "Mercury"},
+    "Mars": {"Sun", "Moon", "Jupiter"}, "Mercury": {"Sun", "Venus"},
+    "Jupiter": {"Sun", "Moon", "Mars"}, "Venus": {"Mercury", "Saturn"},
+    "Saturn": {"Mercury", "Venus"},
+}
+_CLASSICAL_NEUTRALS = {
+    "Sun": {"Mercury"}, "Moon": {"Mars", "Jupiter", "Venus", "Saturn"},
+    "Mars": {"Venus", "Saturn"}, "Mercury": {"Mars", "Jupiter", "Saturn"},
+    "Jupiter": {"Saturn"}, "Venus": {"Mars", "Jupiter"}, "Saturn": {"Jupiter"},
+}
+
+
+def _porutham(status, value, evidence):
+    return {"status": status, "value": value, "evidence": evidence}
+
+
+def dasa_porutham(girl, boy):
+    """Calculate the ten classical star/sign checks using the documented Tamil convention."""
+    g_nak, b_nak = girl["moon_nak"], boy["moon_nak"]
+    g_sign, b_sign = girl["moon_sign"], boy["moon_sign"]
+    if not (0 <= g_nak < 27 and 0 <= b_nak < 27 and 0 <= g_sign < 12 and 0 <= b_sign < 12):
+        raise ValueError("moon_nak must be 0–26 and moon_sign must be 0–11")
+
+    star_count = (b_nak - g_nak) % 27 + 1
+    dina_ok = (
+        star_count in {2, 4, 6, 8, 9}
+        or 10 <= star_count <= 18 and star_count != 17
+        or 19 <= star_count <= 27 and star_count not in {24, 27}
+    )
+    mahendra_ok = star_count in {4, 7, 10, 13, 16, 19, 22, 25}
+    yoni_g, yoni_b = YONI_BY_NAK[g_nak], YONI_BY_NAK[b_nak]
+    if yoni_g == yoni_b or "monkey" in (yoni_g, yoni_b) or {yoni_g, yoni_b} <= YONI_FRIENDLY:
+        yoni_status = "favorable"
+    elif yoni_g in YONI_HOSTILE and yoni_b in YONI_HOSTILE:
+        yoni_status = "unfavorable"
+    else:
+        yoni_status = "partial"
+
+    gana_g, gana_b = GANA_PER_NAK[g_nak], GANA_PER_NAK[b_nak]
+    if gana_g == gana_b or (gana_g, gana_b) == ("Manushya", "Deva"):
+        gana_status = "favorable"
+    elif (gana_g, gana_b) == ("Deva", "Manushya"):
+        gana_status = "partial"
+    else:
+        gana_status = "unfavorable"
+    sign_count = (b_sign - g_sign) % 12 + 1
+    if sign_count == 1 or sign_count >= 7:
+        rasi_status = "favorable"
+    elif sign_count in {2, 5, 6}:
+        rasi_status = "unfavorable"
+    else:
+        rasi_status = "partial"
+
+    girl_lord, boy_lord = SIGNS_LORD[g_sign], SIGNS_LORD[b_sign]
+    if girl_lord == boy_lord:
+        lord_status = "favorable"
+        lord_relation = "same sign lord"
+    else:
+        g_to_b = "friend" if boy_lord in _CLASSICAL_FRIENDS[girl_lord] else (
+            "neutral" if boy_lord in _CLASSICAL_NEUTRALS[girl_lord] else "enemy"
+        )
+        b_to_g = "friend" if girl_lord in _CLASSICAL_FRIENDS[boy_lord] else (
+            "neutral" if girl_lord in _CLASSICAL_NEUTRALS[boy_lord] else "enemy"
+        )
+        lord_relation = f"girl-to-boy {g_to_b}; boy-to-girl {b_to_g}"
+        lord_status = "unfavorable" if "enemy" in (g_to_b, b_to_g) else (
+            "favorable" if g_to_b == b_to_g == "friend" else "partial"
+        )
+
+    girl_controls = b_sign in VASHYA_SIGNS[g_sign]
+    boy_controls = g_sign in VASHYA_SIGNS[b_sign]
+    vashya_status = "favorable" if girl_controls and not boy_controls else (
+        "partial" if girl_controls or boy_controls else "unfavorable"
+    )
+
+    vedha = frozenset((g_nak, b_nak)) in VEDHA_PAIRS or (
+        g_nak != b_nak and g_nak in VEDHA_TRIPLE and b_nak in VEDHA_TRIPLE
+    )
+    checks = {
+        "Dina": _porutham(
+            "favorable" if dina_ok else "unfavorable", star_count,
+            f"Count girl-to-boy is {star_count}; favorable counts follow Vidhānamālai's three nine-star sections.",
+        ),
+        "Gana": _porutham(gana_status, f"girl={gana_g}, boy={gana_b}", "Birth-star gana comparison."),
+        "Mahendra": _porutham(
+            "favorable" if mahendra_ok else "unfavorable", star_count,
+            "Favorable girl-to-boy counts: 4, 7, 10, 13, 16, 19, 22, 25.",
+        ),
+        "Stree Deergha": _porutham(
+            "favorable" if star_count > 13 else "unfavorable", star_count,
+            "The selected rule requires a girl-to-boy count greater than 13.",
+        ),
+        "Yoni": _porutham(yoni_status, f"girl={yoni_g}, boy={yoni_b}", "Vidhānamālai animal-symbol convention."),
+        "Rasi": _porutham(
+            rasi_status, sign_count,
+            "Count girl-to-boy; same sign or 7–12 is favorable, 2/5/6 unfavorable, 3/4 partial in this implementation.",
+        ),
+        "Rasyadhipathi": _porutham(lord_status, f"{girl_lord}/{boy_lord}", lord_relation),
+        "Vasya": _porutham(
+            vashya_status, f"girl-controls={girl_controls}, boy-controls={boy_controls}",
+            "Directional Moon-sign attraction table; girl's sign attracting the boy's is favorable, reverse-only is partial.",
+        ),
+        "Rajju": _porutham(
+            "unfavorable" if RAJJU_FOR_NAK[g_nak] == RAJJU_FOR_NAK[b_nak] else "favorable",
+            f"girl={RAJJU_FOR_NAK[g_nak]}, boy={RAJJU_FOR_NAK[b_nak]}",
+            "Birth stars in the same Rajju group do not agree.",
+        ),
+        "Vedha": _porutham(
+            "unfavorable" if vedha else "favorable", vedha,
+            "Checks the selected Vidhānamālai/Kalaprakasika mutually obstructing star pairs.",
+        ),
+    }
+    counts = {status: sum(check["status"] == status for check in checks.values())
+              for status in ("favorable", "partial", "unfavorable")}
+    return {
+        "checks": checks,
+        "counts": counts,
+        "max_checks": 10,
+        "convention": "Tamil Dasa Porutham; bride-to-groom counting; no dosha cancellation applied.",
+        "notes": (
+            "Classical compatibility tradition, not a relationship verdict. Regional rule lists "
+            "and exceptions vary; this reports raw checks and does not recommend whether to marry."
+        ),
+    }
 def from_chart(chart):
     j = chart["jyotisha"]
     moon = j["planets"]["Moon"]
@@ -177,16 +335,30 @@ if __name__ == "__main__":
     ap.add_argument("--chart-a", required=True)
     ap.add_argument("--chart-b", required=True)
     ap.add_argument("--out", default=None)
+    ap.add_argument("--method", choices=["ashtakoota", "porutham10", "both"], default="ashtakoota")
     a = ap.parse_args()
     ca = json.loads(Path(a.chart_a).read_text(encoding="utf-8"))
     cb = json.loads(Path(a.chart_b).read_text(encoding="utf-8"))
-    result = guna_milan(from_chart(ca), from_chart(cb))
+    person_a, person_b = from_chart(ca), from_chart(cb)
+    if a.method == "ashtakoota":
+        result = guna_milan(person_a, person_b)
+    elif a.method == "porutham10":
+        result = dasa_porutham(person_b, person_a)
+    else:
+        result = {
+            "ashtakoota": guna_milan(person_a, person_b),
+            "dasa_porutham": dasa_porutham(person_b, person_a),
+        }
+    ashtakoota_result = result if a.method == "ashtakoota" else result.get("ashtakoota")
     try:
-        pa, pb = from_chart(ca), from_chart(cb)
+        pa, pb = person_a.copy(), person_b.copy()
         for _c, _p in ((ca, pa), (cb, pb)):
             _mars = _c["jyotisha"]["planets"]["Mars"]["house"]
             _p["mars_house_lagna"] = _mars; _p["mars_house_moon"] = _mars
-        result["dosha_parihara"] = evaluate_dosha_cancellations(pa, pb, result["breakdown"])
+        if ashtakoota_result is not None:
+            ashtakoota_result["dosha_parihara"] = evaluate_dosha_cancellations(
+                pa, pb, ashtakoota_result["breakdown"]
+            )
     except Exception as e:
         result["dosha_parihara_error"] = str(e)
     txt = json.dumps(result, indent=2)

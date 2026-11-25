@@ -76,6 +76,14 @@ def main():
         lines.append(f"- **Bhava {h} ({HOUSES[h-1]}):** {desc}.")
     lines.append(f"- D9 ASC: {fmt_deg(jy['D9']['ascendant'])}; D10 ASC: {fmt_deg(jy['D10']['ascendant'])}. See charts.html for placements.")
     lines.append("- Sign-level dignities only; degree-based strengths/combustion not assessed.")
+    from vedic_predictions import interpret_chart
+    jyotisha_indicators = interpret_chart(jy)
+    lines.append(f"- Rule library: {jyotisha_indicators['rule_library_size']} traditional interpretive combinations; {jyotisha_indicators['count_for_chart']} chart-specific indicators shown below.")
+    lines.append("")
+    lines.append("### Chart-specific Jyotisha indicators")
+    for card in jyotisha_indicators["graha_in_bhava"] + jyotisha_indicators["bhava_lord_in_bhava"]:
+        lines.append(f"- **{card['evidence']}** {card['themes']} {card['reading_prompt']}")
+    lines.append("- These indicators are symbolic prompts; the chart must be judged as a whole, and they are not guaranteed events.")
     lines.append("")
 
     lines.append("## 7. Topic readings")

@@ -17,3 +17,8 @@ Deterministic 8-Koota scoring in `scripts/guna_milan.py`. Person A = groom/boy, 
 Plain count: Bhakoot/Nadi cancellations NOT applied; dosha flags reported.
 Modern synastry (0-100) = total/36*100, shown alongside the traditional score.
 CLI: `python scripts/guna_milan.py --chart-a chartA.json --chart-b chartB.json`
+
+The same CLI now supports South Indian/Tamil Dasa Porutham's ten checks with
+`--method porutham10`, or both systems using `--method both`. The Porutham
+convention is documented separately with primary-text links, chosen thresholds,
+and regional variation notes in [vedic-insights-and-porutham.md](vedic-insights-and-porutham.md).

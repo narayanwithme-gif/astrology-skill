@@ -13,6 +13,9 @@
   searches, a source-derived 58-system dasha selector catalog, and 22 upstream
   language identifiers; document six-language festival translation coverage,
   convention sources, licensing, and review limits.
+- Add 252 deterministic Jyotisha interpretive templates with chart-specific
+  indicators, plus ten Tamil Dasa Porutham compatibility checks beside the
+  existing Ashtakoota workflow; publish selected source conventions and limits.
 
 # Changelog
 
