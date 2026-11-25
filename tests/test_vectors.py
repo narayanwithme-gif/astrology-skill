@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""External known-answer vectors.
+"""Regression snapshots and placeholders for external known-answer vectors.
 
-Each vector: request + expected longitudes/signs from an independent published
-source. The test runs chart_engine and compares within tolerance. Vectors with
-source 'pending' are skipped (documented, not faked). See docs/validation-report.md.
+The demo snapshot is an internal regression check, not an independent accuracy
+source. External vectors stay pending until their source, settings, and expected
+values can be documented and reviewed. See docs/validation-report.md.
 """
+
 import copy
 import importlib.util
 import json
@@ -19,11 +20,10 @@ SPEC.loader.exec_module(engine)
 VECTORS = [
     {
         "id": "demo-2000-01-01-delhi",
-        "source": "PySwissEph documentation-style cross-check (internal pipeline)",
-        "tolerance_deg": 0.05,
+        "source": "examples/demo/chart.json (project-generated regression snapshot; not independent)",
+        "tolerance_deg": 0.000001,
         "request": json.loads((ROOT / "assets/request.example.json").read_text(encoding="utf-8")),
-        # Sun longitude on 2000-01-01 06:30 UT is ~280.4 deg tropical (Capricorn 10.4)
-        "expect_western": {"Sun": (280.4, "Capricorn", 0.5)},
+        "expect_western": {"Sun": (280.1353021338655, "Capricorn", 0.000001)},
     },
     {
         "id": "external-jhora-pending",
@@ -33,20 +33,22 @@ VECTORS = [
     },
 ]
 
+
 class VectorTests(unittest.TestCase):
-    def test_demo_vector(self):
+    def test_demo_regression_snapshot(self):
         v = VECTORS[0]
         result = engine.calculate(copy.deepcopy(v["request"]))
         for body, (lon, sign, tol) in v["expect_western"].items():
             got = result["western"]["planets"][body]
             d = abs((got["longitude"] - lon + 180) % 360 - 180)
-            self.assertLess(d, tol + 0.5, f"{body} delta {d:.3f}")
+            self.assertLessEqual(d, tol, f"{body} delta {d:.8f}")
             self.assertEqual(got["sign"], sign)
 
     def test_pending_vectors_documented(self):
         pending = [v for v in VECTORS if v.get("pending")]
         for v in pending:
             self.assertIn("pending", v["source"])
+
 
 if __name__ == "__main__":
     unittest.main()

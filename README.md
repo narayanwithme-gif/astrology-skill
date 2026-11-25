@@ -132,7 +132,20 @@ Astrology is treated here as a traditional symbolic practice. Its interpretation
 
 The [advanced chart guide](docs/advanced-features.md#jyotisha-methods) describes the scope of Shadbala, Ashtakavarga, KP and Jaimini. A complete Panchanga, general transit-event searches, rectification and divisional charts beyond D9/D10 remain outside the calculator's scope. See [calculation conventions](references/calculation.md).
 
-Internal tests check arithmetic, settings and failure handling. They are not an independent astronomical cross-check or evidence of predictive accuracy. Birth-time uncertainty checks compare endpoints; they do not inspect every instant within the interval.
+## Calculation validation status
+
+CI checks internal calculation invariants, input handling, recorded regression
+snapshots, and agreement between two PySwissEph ephemeris modes. That mode check
+uses the same library on both paths and is not an independent engine or an
+external chart comparison. The current test suite does not yet contain a
+reviewed known-answer vector from Jagannatha Hora, Drik Panchang, or another
+independent chart source. See the [validation status and contribution protocol](docs/validation-report.md).
+
+Until an external reference vector has been reviewed, describe output as
+“computed locally; not independently verified against an external chart
+reference.” Birth-time uncertainty checks compare endpoints; they do not inspect
+every instant within the interval. None of these checks establishes predictive
+accuracy.
 
 ## Development
 
