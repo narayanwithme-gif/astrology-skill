@@ -44,6 +44,14 @@ Until such vectors are captured and checked into the repository, describe
 charts as “computed locally; not independently verified against an external
 chart reference.”
 
+`tests/test_vectors.py` now provides a fixture validator and runner for this
+purpose. A fixture must identify its source and version, retrieval date,
+settings, request, expected values, tolerance, and redistribution note. Numeric
+expected values use dotted paths into the chart JSON; angular differences wrap
+at 360°. Pending fixtures are rejected and cannot silently count as passing
+validation. This is infrastructure for contributed evidence, not evidence by
+itself.
+
 When contributing a vector, include:
 
 1. A fictional or public-domain birth record, with local date/time, IANA
@@ -57,3 +65,7 @@ When contributing a vector, include:
 
 Do not add real private birth data, screenshots containing personal data, or
 values copied from another test run of this project as an external reference.
+
+Before enabling a contributed fixture, a reviewer should reproduce the source
+values independently, check the calculation conventions, and confirm that the
+fixture's birth record and exported values may be redistributed.

@@ -1,3 +1,11 @@
+# Unreleased
+
+- Add an optional localhost-only JSON API (`hermes-astrology-api`) for chart
+  calculations; request bodies are not written to access logs.
+- Add external-vector fixture validation that requires source/version,
+  retrieval date, settings, expected values, tolerance, and redistribution notes.
+- Document that fixture tooling is not itself independent accuracy evidence.
+
 # Changelog
 
 ## Unreleased

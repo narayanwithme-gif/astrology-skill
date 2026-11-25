@@ -78,6 +78,19 @@ You can also run the script directly without installing the project:
 python scripts/chart_engine.py --input assets/request.example.json --out reports/demo
 ```
 
+### Local JSON API
+
+Install the project, then start the optional localhost API:
+
+```sh
+hermes-astrology-api
+```
+
+Send the same JSON request used by the CLI to `POST http://127.0.0.1:8765/chart`.
+The server binds to localhost only, accepts bodies up to 1 MB, does not log
+request contents, and returns the chart JSON or a 400 error. It has no
+authentication and is intended for local integrations, not public deployment.
+
 Open `reports/demo/charts.html` in a browser. Choose a new output directory for each run; the calculator refuses to overwrite report files.
 
 ## Run an advanced report
@@ -146,6 +159,12 @@ Until an external reference vector has been reviewed, describe output as
 reference.” Birth-time uncertainty checks compare endpoints; they do not inspect
 every instant within the interval. None of these checks establishes predictive
 accuracy.
+
+The test suite includes a fixture validator for future independent references.
+It requires source/version, retrieval date, settings, expected values, tolerance,
+and redistribution notes; pending fixtures are rejected. This makes contributed
+validation reproducible, but does not replace the external vectors that are
+still needed. See the [fixture protocol](docs/validation-report.md#independent-reference-vectors).
 
 ## Development
 
