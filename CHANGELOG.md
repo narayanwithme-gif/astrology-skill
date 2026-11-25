@@ -9,6 +9,10 @@
   with an explicit warning that results are not sunrise-anchored.
 - Add an offline sunrise-based monthly Panchanga JSON CLI, with calendar
   generation and CLI smoke coverage in CI.
+- Add an optional offline PyJHora adapter for regional festival and vrata-date
+  searches, a source-derived 58-system dasha selector catalog, and 22 upstream
+  language identifiers; document six-language festival translation coverage,
+  convention sources, licensing, and review limits.
 
 # Changelog
 

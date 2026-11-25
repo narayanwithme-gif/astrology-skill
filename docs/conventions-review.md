@@ -21,5 +21,7 @@ universal.
 |---|---|---|---|
 | — | pending | Jyotisha | awaiting practitioner review |
 | — | pending | Western | awaiting practitioner review |
+| — | pending | Festival and vrata dates | PyJHora 5.0.6 adapter; region-specific sign-off still required |
+| — | pending | Indian-language labels | Source data available in six festival languages; independent native-speaker review pending |
 
 Record agreements and disagreements here; do not silently change conventions.

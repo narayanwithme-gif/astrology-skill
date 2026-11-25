@@ -18,6 +18,9 @@ The calculator produces chart data, diagrams, planetary periods and transit tabl
 | Divisional charts | D9 Navamsha and D10 Dashamsha using the stated Parashari rules |
 | Panchanga at birth instant | Vara, tithi, nakshatra, yoga and karana; explicitly not sunrise-anchored |
 | Sunrise Vedic calendar | Offline month JSON for a supplied location/timezone, with the five limbs computed at local sunrise |
+| Festival calendar and vrata dates | Optional offline regional festival dataset and named vrata rules, sourced from PyJHora |
+| Extended dasha catalog | Optional source-backed catalog of wired dasha selectors; calculation validation varies by method |
+| Indian language breadth | Optional 22 upstream language identifiers; actual festival-name fields are available in six languages |
 | Periods | Vimshottari birth balance, mahadashas and antardashas |
 | Timing | Western transit aspects; Jyotisha gochara houses and graha drishti |
 | Composite charts | Midpoint composite and Davison relationship charts |
@@ -144,7 +147,7 @@ npx skills add narayanwithme-gif/astrology-skill
 
 Astrology is treated here as a traditional symbolic practice. Its interpretations are not scientifically established predictions.
 
-The [advanced chart guide](docs/advanced-features.md#jyotisha-methods) describes the scope of Shadbala, Ashtakavarga, KP and Jaimini. A sunrise Panchanga month is available through the CLI; regional festival/vrat determination, general transit-event searches, rectification and divisional charts beyond D9/D10 remain outside the calculator's scope. See [calculation conventions](references/calculation.md).
+The [advanced chart guide](docs/advanced-features.md#jyotisha-methods) describes the scope of Shadbala, Ashtakavarga, KP and Jaimini. A sunrise Panchanga month is available through the CLI. Regional festival and vrata lookups require the optional extension below. General transit-event searches, rectification and divisional charts beyond D9/D10 remain outside the calculator's scope. See [calculation conventions](references/calculation.md).
 
 Generate a sunrise-based Vedic calendar for a month with the offline CLI:
 
@@ -153,11 +156,27 @@ hermes-vedic-calendar --year 2026 --month 11 --timezone Asia/Kolkata \
   --latitude 19.076 --longitude 72.878 --out reports/panchanga-2026-11.json
 ```
 
-This reports sunrise tithi, nakshatra, yoga, karana and vara for each date. It
-does not name festivals or prescribe vrat observances; those depend on regional
-tradition and additional rules. Fortune-report translations currently cover
-English, Hindi, Hinglish, Marathi and Odia; the CLI calendar output is JSON with
-Sanskrit limb names. See [Panchanga conventions](references/panchanga.md).
+This reports sunrise tithi, nakshatra, yoga, karana and vara for each date.
+Install `python -m pip install 'hermes-astrology[vedic-full]'` to enable
+source-backed festival and vrata lookups, the extended dasha catalog, and the
+22 upstream language identifiers:
+
+```sh
+hermes-vedic-full dashas
+hermes-vedic-full festivals --start 2026-11-01 --end 2026-11-30 \
+  --timezone Asia/Kolkata --latitude 19.076 --longitude 72.878 \
+  --calendar traditional --language hi --place Mumbai --out reports/festivals.json
+hermes-vedic-full vratas --start 2026-11-01 --end 2026-11-30 \
+  --timezone Asia/Kolkata --latitude 19.076 --longitude 72.878 \
+  --vrata ekadhashi --place Mumbai --out reports/vratas.json
+```
+
+The upstream festival dataset contains festival-name fields in English, Tamil,
+Telugu, Kannada, Hindi and Malayalam; other selected languages fall back to
+English. Translations and regional dates have not been independently reviewed
+by this project. Results include their source and convention notes; confirm
+region-specific observances with a local panchanga. See [the full Vedic
+extension notes](references/full-vedic.md) and [Panchanga conventions](references/panchanga.md).
 
 ## Calculation validation status
 
