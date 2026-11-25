@@ -17,6 +17,7 @@ The calculator produces chart data, diagrams, planetary periods and transit tabl
 | Ayanamsha | Lahiri, Raman, Krishnamurti and Drik (True Chitra) |
 | Divisional charts | D9 Navamsha and D10 Dashamsha using the stated Parashari rules |
 | Panchanga at birth instant | Vara, tithi, nakshatra, yoga and karana; explicitly not sunrise-anchored |
+| Sunrise Vedic calendar | Offline month JSON for a supplied location/timezone, with the five limbs computed at local sunrise |
 | Periods | Vimshottari birth balance, mahadashas and antardashas |
 | Timing | Western transit aspects; Jyotisha gochara houses and graha drishti |
 | Composite charts | Midpoint composite and Davison relationship charts |
@@ -143,7 +144,20 @@ npx skills add narayanwithme-gif/astrology-skill
 
 Astrology is treated here as a traditional symbolic practice. Its interpretations are not scientifically established predictions.
 
-The [advanced chart guide](docs/advanced-features.md#jyotisha-methods) describes the scope of Shadbala, Ashtakavarga, KP and Jaimini. Sunrise-anchored Panchanga calendars, general transit-event searches, rectification and divisional charts beyond D9/D10 remain outside the calculator's scope. See [calculation conventions](references/calculation.md).
+The [advanced chart guide](docs/advanced-features.md#jyotisha-methods) describes the scope of Shadbala, Ashtakavarga, KP and Jaimini. A sunrise Panchanga month is available through the CLI; regional festival/vrat determination, general transit-event searches, rectification and divisional charts beyond D9/D10 remain outside the calculator's scope. See [calculation conventions](references/calculation.md).
+
+Generate a sunrise-based Vedic calendar for a month with the offline CLI:
+
+```sh
+hermes-vedic-calendar --year 2026 --month 11 --timezone Asia/Kolkata \
+  --latitude 19.076 --longitude 72.878 --out reports/panchanga-2026-11.json
+```
+
+This reports sunrise tithi, nakshatra, yoga, karana and vara for each date. It
+does not name festivals or prescribe vrat observances; those depend on regional
+tradition and additional rules. Fortune-report translations currently cover
+English, Hindi, Hinglish, Marathi and Odia; the CLI calendar output is JSON with
+Sanskrit limb names. See [Panchanga conventions](references/panchanga.md).
 
 ## Calculation validation status
 

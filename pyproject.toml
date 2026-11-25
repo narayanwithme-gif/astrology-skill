@@ -21,11 +21,13 @@ classifiers = [
 hermes-astrology = "chart_engine:cli"
 hermes-astrology-svg = "svg_export:cli"
 hermes-astrology-api = "chart_api:main"
+hermes-vedic-calendar = "vedic_calendar:cli"
 
 [tool.setuptools]
 py-modules = [
     "chart_engine", "engine_utils", "advanced", "composite_charts", "progressions",
     "relocation", "shadbala", "ashtakavarga", "kp_system", "svg_export", "chart_api",
+    "vedic_calendar",
 ]
 package-dir = {"" = "scripts"}
 

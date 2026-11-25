@@ -7,6 +7,8 @@
 - Document that fixture tooling is not itself independent accuracy evidence.
 - Add all five instant-based Panchanga limbs to chart JSON and the HTML atlas,
   with an explicit warning that results are not sunrise-anchored.
+- Add an offline sunrise-based monthly Panchanga JSON CLI, with calendar
+  generation and CLI smoke coverage in CI.
 
 # Changelog
 

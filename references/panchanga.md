@@ -15,8 +15,15 @@ Panchanga for a civil day.
   close the 60-half-tithi cycle.
 - Vara is the weekday of the local birth date. No sunrise boundary is inferred.
 
-Sunrise-anchored day assignment, sunrise/sunset times, and festival dates are
-not implemented. Do not use this instant record as a published day Panchanga.
+## Monthly sunrise calendar
+
+`hermes-vedic-calendar` finds the local sunrise for each date with the local
+PySwissEph Moshier calculation, then evaluates the same five limbs at that
+instant. It requires an IANA timezone and coordinates and produces JSON. This
+is suitable for inspecting calculated sunrise limbs; it is not a regional
+festival/vrat engine. Festival observance can depend on sunrise rules, local
+tradition, multiple-day tithi rules, and school-specific decisions that are not
+implemented here.
 
 ## Exact-event search
 - Ingress: solve lon(t) = cusp within [t0, t1] by bisection using PySwissEph (Moshier) at minute resolution; report bracket + solved instant; flag retrograde-touch events separately.
