@@ -1,4 +1,4 @@
-# Unreleased
+# 1.5.0 (2026-11-25)
 
 - Add an optional localhost-only JSON API (`hermes-astrology-api`) for chart
   calculations; request bodies are not written to access logs.
