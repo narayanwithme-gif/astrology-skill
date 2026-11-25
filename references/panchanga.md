@@ -1,10 +1,22 @@
 # Panchanga and exact transit-event search
 
-## Panchanga (sidereal, Lahiri)
-- tithi = floor((Moon - Sun) mod 360 / 12) + 1, paksha = Shukla (1-15) / Krishna (16-30) (at instant).
-- nakshatra = floor(Moon_lon / (360/27)), pada within; vara from weekday; karana and yoga are derived from tithi and (Sun+Moon) lon/13°20' respectively.
-- Sunrise/sunset require a location + solar ephemeris cross-check; mark as not sunrise-anchored when the instant tithi is used.
-- Status: computed (instant), sunrise panchanga pending location-anchored day boundary.
+## Panchanga at the birth instant
+
+The chart reports vara, tithi, nakshatra, yoga, and karana for the recorded
+birth instant. This is an instant snapshot, not the traditional sunrise-based
+Panchanga for a civil day.
+
+- Tithi number is `floor((Moon - Sun) mod 360 / 12) + 1`; 1–15 are Shukla and
+  16–30 Krishna.
+- Nakshatra number is `floor(Moon longitude / (360/27)) + 1`.
+- Yoga number is `floor((Sun + Moon) mod 360 / (360/27)) + 1`.
+- Karana number is `floor((Moon - Sun) mod 360 / 6) + 1`. Kimstughna occurs
+  first, the seven movable karanas repeat, and Shakuni, Chatushpada, and Naga
+  close the 60-half-tithi cycle.
+- Vara is the weekday of the local birth date. No sunrise boundary is inferred.
+
+Sunrise-anchored day assignment, sunrise/sunset times, and festival dates are
+not implemented. Do not use this instant record as a published day Panchanga.
 
 ## Exact-event search
 - Ingress: solve lon(t) = cusp within [t0, t1] by bisection using PySwissEph (Moshier) at minute resolution; report bracket + solved instant; flag retrograde-touch events separately.

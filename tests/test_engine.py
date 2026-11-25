@@ -21,6 +21,18 @@ class CalculationTests(unittest.TestCase):
     def setUp(self):
         self.request = copy.deepcopy(EXAMPLE)
 
+    def test_panchanga_limb_ranges_and_boundary_karanas(self):
+        from datetime import date
+
+        full_moon = engine.panchanga_at_instant(0, 180, date(2024, 1, 1))
+        self.assertEqual(full_moon["tithi"], {"number": 16, "paksha": "Krishna"})
+        self.assertEqual(full_moon["karana"], {"number": 31, "name": "Balava"})
+        new_moon = engine.panchanga_at_instant(0, 0, date(2024, 1, 1))
+        self.assertEqual(new_moon["karana"], {"number": 1, "name": "Kimstughna"})
+        end_cycle = engine.panchanga_at_instant(0, 359.999, date(2024, 1, 1))
+        self.assertEqual(end_cycle["karana"], {"number": 60, "name": "Naga"})
+        self.assertEqual(len(engine.YOGAS), 27)
+
     def test_utc_and_chart_invariants(self):
         result = engine.calculate(self.request)
         self.assertEqual(result["provenance"]["birth_utc"], "2000-01-01T06:30:00+00:00")

@@ -16,7 +16,7 @@ The calculator produces chart data, diagrams, planetary periods and transit tabl
 | Jyotisha | Sidereal positions, whole-sign Rashi houses and Parashari sign-based graha drishti |
 | Ayanamsha | Lahiri, Raman, Krishnamurti and Drik (True Chitra) |
 | Divisional charts | D9 Navamsha and D10 Dashamsha using the stated Parashari rules |
-| Lunar data | Moon nakshatra, pada and tithi at the birth instant |
+| Panchanga at birth instant | Vara, tithi, nakshatra, yoga and karana; explicitly not sunrise-anchored |
 | Periods | Vimshottari birth balance, mahadashas and antardashas |
 | Timing | Western transit aspects; Jyotisha gochara houses and graha drishti |
 | Composite charts | Midpoint composite and Davison relationship charts |
@@ -143,7 +143,7 @@ npx skills add narayanwithme-gif/astrology-skill
 
 Astrology is treated here as a traditional symbolic practice. Its interpretations are not scientifically established predictions.
 
-The [advanced chart guide](docs/advanced-features.md#jyotisha-methods) describes the scope of Shadbala, Ashtakavarga, KP and Jaimini. A complete Panchanga, general transit-event searches, rectification and divisional charts beyond D9/D10 remain outside the calculator's scope. See [calculation conventions](references/calculation.md).
+The [advanced chart guide](docs/advanced-features.md#jyotisha-methods) describes the scope of Shadbala, Ashtakavarga, KP and Jaimini. Sunrise-anchored Panchanga calendars, general transit-event searches, rectification and divisional charts beyond D9/D10 remain outside the calculator's scope. See [calculation conventions](references/calculation.md).
 
 ## Calculation validation status
 

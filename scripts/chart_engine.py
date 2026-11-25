@@ -45,6 +45,9 @@ BODIES = [
     ]
 ]
 CLASSICAL = [n for n, _ in BODIES[:7]] + ["Rahu", "Ketu"]
+YOGAS = "Vishkambha Priti Ayushman Saubhagya Shobhana Atiganda Sukarma Dhriti Shula Ganda Vriddhi Dhruva Vyaghata Harshana Vajra Siddhi Vyatipata Variyan Parigha Shiva Siddha Sadhya Shubha Shukla Brahma Indra Vaidhriti".split()
+KARANAS = ["Bava", "Balava", "Kaulava", "Taitila", "Gara", "Vanija", "Vishti"]
+VARAS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 AYANAMSHA_MODES = {
     "lahiri": swe.SIDM_LAHIRI,
     "raman": swe.SIDM_RAMAN,
@@ -285,6 +288,34 @@ def dashas(birth, moon, as_of, year_days):
     }
 
 
+def panchanga_at_instant(sun_longitude, moon_longitude, local_date):
+    """Return the five Panchanga limbs at the instant, without sunrise anchoring."""
+    elongation = (moon_longitude - sun_longitude) % 360
+    tithi = int(elongation // 12) + 1
+    yoga_number = int(((sun_longitude + moon_longitude) % 360) // (360 / 27)) + 1
+    karana_number = int(elongation // 6) + 1
+    if karana_number == 1:
+        karana = "Kimstughna"
+    elif karana_number >= 58:
+        karana = {58: "Shakuni", 59: "Chatushpada", 60: "Naga"}[karana_number]
+    else:
+        karana = KARANAS[(karana_number - 2) % 7]
+    return {
+        "day_of_week": VARAS[local_date.weekday()],
+        "tithi": {
+            "number": tithi,
+            "paksha": "Shukla" if tithi <= 15 else "Krishna",
+        },
+        "nakshatra": {
+            "number": int(moon_longitude // (360 / 27)) + 1,
+            "name": NAK[int(moon_longitude // (360 / 27))],
+        },
+        "yoga": {"number": yoga_number, "name": YOGAS[yoga_number - 1]},
+        "karana": {"number": karana_number, "name": karana},
+        "day_boundary": "birth instant; not sunrise-anchored",
+    }
+
+
 def signature(w, v):
     return {
         "western_asc_sign": w["ascendant"]["sign"],
@@ -329,11 +360,12 @@ def calculate(request):
     now = now.astimezone(UTC)
     jd = jd_at(local)
     w, v = [make_chart(jd, lat, lon, s, sidereal) for sidereal in [False, True]]
-    tithi = (
-        int(((v["planets"]["Moon"]["longitude"] - v["planets"]["Sun"]["longitude"]) % 360) // 12)
-        + 1
+    v["panchanga_at_instant"] = panchanga_at_instant(
+        v["planets"]["Sun"]["longitude"],
+        v["planets"]["Moon"]["longitude"],
+        local.date(),
     )
-    v["tithi_at_instant"] = {"number": tithi, "paksha": "Shukla" if tithi <= 15 else "Krishna"}
+    v["tithi_at_instant"] = v["panchanga_at_instant"]["tithi"]
     v["graha_drishti"] = drishti(v)
     w["aspects"] = aspect_table(w["planets"], orb=s["aspect_orb_degrees"])
     dasha = dashas(local, v["planets"]["Moon"]["longitude"], now, s["dasha_year_days"])
@@ -650,6 +682,18 @@ def atlas(data):
             for r in w["aspects"]
         ],
     )
+    panchanga = v["panchanga_at_instant"]
+    content += "<h2>Panchanga at birth instant</h2>" + table(
+        ["Limb", "Value"],
+        [
+            ("Vara", panchanga["day_of_week"]),
+            ("Tithi", f'{panchanga["tithi"]["number"]} — {panchanga["tithi"]["paksha"]}'),
+            ("Nakshatra", f'{panchanga["nakshatra"]["number"]} — {panchanga["nakshatra"]["name"]}'),
+            ("Yoga", f'{panchanga["yoga"]["number"]} — {panchanga["yoga"]["name"]}'),
+            ("Karana", f'{panchanga["karana"]["number"]} — {panchanga["karana"]["name"]}'),
+        ],
+    )
+    content += '<p class="note">These limbs are evaluated at the recorded birth instant; vara and tithi are not sunrise-anchored Panchanga-day results.</p>'
     content += "<h2>Parashari sign-based full graha drishti</h2>" + table(
         ["Graha", "Count", "Target sign", "House", "Grahas"],
         [

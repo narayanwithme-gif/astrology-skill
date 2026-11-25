@@ -5,6 +5,8 @@
 - Add external-vector fixture validation that requires source/version,
   retrieval date, settings, expected values, tolerance, and redistribution notes.
 - Document that fixture tooling is not itself independent accuracy evidence.
+- Add all five instant-based Panchanga limbs to chart JSON and the HTML atlas,
+  with an explicit warning that results are not sunrise-anchored.
 
 # Changelog
 
