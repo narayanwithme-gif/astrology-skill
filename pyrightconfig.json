@@ -1,0 +1,22 @@
+{
+  "include": [
+    "scripts"
+  ],
+  "exclude": [
+    ".venv",
+    "**/__pycache__",
+    "reports",
+    "tests"
+  ],
+  "pythonVersion": "3.11",
+  "typeCheckingMode": "basic",
+  "reportMissingImports": true,
+  "reportMissingModuleSource": false,
+  "reportUndefinedVariable": true,
+  "reportAttributeAccessIssue": "warning",
+  "venvPath": ".",
+  "venv": ".venv",
+  "extraPaths": [
+    "scripts"
+  ]
+}
