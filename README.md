@@ -152,6 +152,54 @@ python scripts/build_example.py
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for changes and [SECURITY.md](SECURITY.md) for reporting defects without exposing birth data.
 
+## Standalone SVG charts
+
+The `charts.html` atlas embeds its diagrams inline. To get standalone `.svg` files
+(like the kerykeion library) for documents, websites, or graphic tools:
+
+```sh
+# Option 1: pass --svg to the engine
+python scripts/chart_engine.py --input assets/request.example.json --out reports/demo --svg
+
+# Option 2: export from an existing chart.json
+python scripts/svg_export.py --chart reports/demo/chart.json --out reports/demo/svg
+```
+
+This writes `western-wheel.svg`, `d1-north.svg`, `d1-south.svg`, `d9-north.svg`,
+`d9-south.svg`, `d10-north.svg`, and `d10-south.svg`. Each is a valid, self-contained
+SVG with an XML declaration and namespace. The installed commands
+`hermes-astrology` and `hermes-astrology-svg` expose the same functionality.
+
+## Reproducible development
+
+`uv.lock` pins the dependency graph for deterministic installs. For static checks,
+`pyrightconfig.json` configures type checking for the `scripts/` directory.
+
+```sh
+uv sync                 # install from uv.lock
+uv run python -m unittest discover -s tests -v
+```
+
+## Packaged skills for multiple agents
+
+The `skills/` directory contains packaged `SKILL.md` variants for Hermes, Claude
+Code, OpenCode, and OpenAI agents, plus a canonical copy. See
+[skills/README.md](skills/README.md) for layout and regeneration steps. The root
+`SKILL.md` remains the source of truth.
+
+## Community
+
+See [COMMUNITY.md](COMMUNITY.md) for the one-time step to enable GitHub Discussions
+and suggested discussion categories. Bug reports, feature requests, and skill
+feedback have dedicated issue templates under `.github/ISSUE_TEMPLATE/`.
+
 ## License
 
-AGPL-3.0-or-later. See [LICENSE](LICENSE) and [NOTICE](NOTICE). PySwissEph and Swiss Ephemeris have their own license terms; the project uses their free AGPL route. Review those terms before distributing a modified version or operating a public service.
+Dual-licensed: AGPL-3.0-or-later (see [LICENSE](LICENSE) and [NOTICE](NOTICE)) or a
+commercial license for proprietary use (see [COMMERCIAL-LICENSE.md](COMMERCIAL-LICENSE.md)
+and the overview in [LICENSING.md](LICENSING.md)). PySwissEph and Swiss Ephemeris have
+their own license terms; the project uses their free AGPL route. Review those terms
+before distributing a modified version or operating a public service.
+
+Astrology is a traditional symbolic practice, not an established science. This
+software does not provide medical, financial, legal, or other professional advice.
