@@ -29,12 +29,13 @@ hermes-astrology-api = "chart_api:main"
 hermes-vedic-calendar = "vedic_calendar:cli"
 hermes-vedic-full = "vedic_extensions:cli"
 hermes-vedic-predictions = "vedic_predictions:cli"
+hermes-report-visuals = "report_visuals:cli"
 
 [tool.setuptools]
 py-modules = [
     "chart_engine", "engine_utils", "advanced", "composite_charts", "progressions",
     "relocation", "shadbala", "ashtakavarga", "kp_system", "svg_export", "chart_api",
-    "vedic_calendar", "vedic_extensions", "vedic_predictions",
+    "vedic_calendar", "vedic_extensions", "vedic_predictions", "report_visuals",
 ]
 package-dir = {"" = "scripts"}
 

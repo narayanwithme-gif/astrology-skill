@@ -16,6 +16,8 @@
 - Add 252 deterministic Jyotisha interpretive templates with chart-specific
   indicators, plus ten Tamil Dasa Porutham compatibility checks beside the
   existing Ashtakoota workflow; publish selected source conventions and limits.
+- Add Report Charts and Report Diagrams agent skills, an offline HTML visual
+  renderer, and chart-derived distribution and timeline visuals for reports.
 
 # Changelog
 

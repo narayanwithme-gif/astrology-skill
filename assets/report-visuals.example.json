@@ -1,0 +1,41 @@
+{
+  "title": "Example report visuals",
+  "sections": [
+    {
+      "type": "percentage-bars",
+      "title": "Illustrative Ashtakoota points",
+      "note": "Fictional example. Percent is the share of available points for the named check.",
+      "rows": [
+        {"label": "Tara", "value": 1.5, "maximum": 3},
+        {"label": "Yoni", "value": 3, "maximum": 4},
+        {"label": "Gana", "value": 6, "maximum": 6}
+      ]
+    },
+    {
+      "type": "timeline",
+      "title": "Example review schedule",
+      "note": "Illustrative dates in UTC.",
+      "rows": [
+        {"label": "Calculate", "start": "2026-01-05", "end": "2026-01-06"},
+        {"label": "Interpret", "start": "2026-01-06", "end": "2026-01-09"},
+        {"label": "Review", "start": "2026-01-09", "end": "2026-01-10"}
+      ]
+    },
+    {
+      "type": "table",
+      "title": "Example placement data",
+      "columns": ["Body", "Sign", "Degree", "House"],
+      "numeric_columns": [2, 3],
+      "rows": [["Sun", "Aries", "12.58°", 1], ["Moon", "Cancer", "4.25°", 4]]
+    },
+    {
+      "type": "steps",
+      "title": "Reading workflow",
+      "rows": [
+        {"label": "Confirm birth data", "detail": "Record local time, timezone, and uncertainty."},
+        {"label": "Calculate and verify", "detail": "Save settings and chart JSON."},
+        {"label": "Prepare the report", "detail": "Summarize the chart with placements and dates."}
+      ]
+    }
+  ]
+}

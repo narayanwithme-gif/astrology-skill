@@ -13,6 +13,12 @@ mirroring the pattern used by projects such as
 | `claude-code/SKILL.md` | Variant for Claude Code, with platform notes. |
 | `opencode/SKILL.md` | Variant for OpenCode, with platform notes. |
 | `openai/SKILL.md` | Variant for OpenAI agents, with platform notes. |
+| `report-charts/SKILL.md` | Guide for percentage bars, tables, and quantitative reports. |
+| `report-diagrams/SKILL.md` | Guide for timelines, workflows, and astrology chart layouts. |
+
+The two report skills are maintained separately. Open them from the repository
+alongside the [report visual reference](../references/report-visuals.md) and
+the local renderer in `scripts/report_visuals.py`.
 
 ## Source of truth
 

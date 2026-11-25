@@ -28,6 +28,12 @@ from engine_utils import (  # noqa: E402, F401
     YEARS,
     number,
 )
+from report_visuals import (  # noqa: E402
+    VISUAL_CSS,
+    house_distribution,
+    render_section,
+    vimshottari_timeline,
+)
 
 BODIES = [
     (n, getattr(swe, n.upper()))
@@ -671,6 +677,7 @@ def atlas(data):
                 ],
             )
         )
+    content += render_section(house_distribution(v))
     content += "<h2>House boundaries</h2>" + table(
         ["House", "Western", "Jyotisha D1"],
         [(i + 1, degree(w["cusps"][i]), degree(v["cusps"][i])) for i in range(12)],
@@ -717,6 +724,7 @@ def atlas(data):
         ],
     )
     d = data["vimshottari"]
+    content += render_section(vimshottari_timeline(d))
     content += (
         "<h2>Vimshottari</h2><p>Approximate period boundaries; "
         + str(d["year_days"])
@@ -725,10 +733,12 @@ def atlas(data):
         + " years. Current: "
         + esc(str(d["current"]))
         + "</p>"
+        + "<details><summary>Mahadasha timestamps (UTC)</summary>"
         + table(
-            ["MD", "Start UTC", "End UTC"],
+            ["Mahadasha", "Start UTC", "End UTC"],
             [(x["lord"], x["start_utc"], x["end_utc"]) for x in d["mahadashas"]],
         )
+        + "</details>"
     )
     for md in d["mahadashas"]:
         content += (
@@ -798,7 +808,9 @@ def atlas(data):
         + "</pre>"
     )
     return (
-        '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Private astrology chart atlas</title><style>body{font:16px system-ui;max-width:1120px;margin:auto;padding:28px;color:#243247;background:#faf8f2}h1,h2{color:#163f56}table{border-collapse:collapse;width:100%;margin:18px 0;font-size:14px}td,th{border:1px solid #ccd2d7;padding:7px;text-align:left;overflow-wrap:anywhere}th{background:#e7eef3}.grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}figure{margin:0}svg{width:100%;max-height:520px;display:block}figcaption{text-align:center;padding:8px}.single{max-width:600px;margin:auto}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#edf0f2;padding:16px}summary{cursor:pointer;padding:10px}@media(max-width:650px){.grid{grid-template-columns:1fr}body{padding:12px}table{font-size:11px}}@media print{details{display:block}summary{display:none}h2{break-after:avoid}figure,table{break-inside:avoid}}</style><body>'
+        '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Private astrology chart atlas</title><style>body{font:16px system-ui;max-width:1120px;margin:auto;padding:28px;color:#243247;background:#faf8f2}h1,h2{color:#163f56}table{border-collapse:collapse;width:100%;margin:18px 0;font-size:14px}td,th{border:1px solid #ccd2d7;padding:7px;text-align:left;overflow-wrap:anywhere}th{background:#e7eef3}.grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}figure{margin:0}svg{width:100%;max-height:520px;display:block}figcaption{text-align:center;padding:8px}.single{max-width:600px;margin:auto}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#edf0f2;padding:16px}summary{cursor:pointer;padding:10px}@media(max-width:650px){.grid{grid-template-columns:1fr}body{padding:12px}table{font-size:11px}}@media print{details{display:block}summary{display:none}h2{break-after:avoid}figure,table{break-inside:avoid}}'
+        + VISUAL_CSS
+        + "</style><body>"
         + content
         + "</body></html>"
     )

@@ -14,6 +14,8 @@ from __future__ import annotations
 import argparse, html as _h, json, pathlib, re, sys
 from xml.sax.saxutils import escape as _xml_escape
 
+from report_visuals import VISUAL_CSS, house_distribution, render_section, vimshottari_timeline
+
 def H(x):
     """Escape user text for HTML context."""
     return _h.escape(str(x), quote=True)
@@ -114,8 +116,14 @@ def main():
     def planet_lines(sec):
         return "<br>".join(f"{k}: {v['sign']} {v['degree_in_sign']:.2f}° H{v['house']}"
                            for k, v in chart[sec]["planets"].items())
-    md_rows = "".join(f"<tr><td>{m['lord']}</td><td>{m['start_utc'][:10]} → {m['end_utc'][:10]}</td></tr>"
-                      for m in chart["vimshottari"]["mahadashas"])
+    distribution = house_distribution(j)
+    dasha_timeline = vimshottari_timeline(chart["vimshottari"])
+    current = chart["vimshottari"]["current"]
+    current_period = (
+        f"<p>Current: {H(current['mahadasha'])}–{H(current['antardasha'])}"
+        f" → {H(current['end_utc'][:10])}</p>"
+        if current else ""
+    )
     grid_pos = {"4":0,"9":1,"2":2,"3":3,"5":4,"7":5,"8":6,"1":7,"6":8}
     cells = [""] * 9
     for d, c in num["grid_counts"].items():
@@ -140,7 +148,9 @@ th{{background:#FFF1B8;width:42%}}
 .note{{background:#fff;border-left:6px solid #C9A227;padding:14px 18px;margin:16px 0}}
 .toc{{background:#2B0A4A;color:#fff;margin:18px auto;max-width:980px;padding:14px 20px;border-radius:12px}}
 .toc a{{color:#E8C766;text-decoration:none;border:1px solid #E8C766;border-radius:999px;padding:4px 10px;font-size:.85rem;margin-right:6px}}
+@media(max-width:600px){{.page{{margin:14px 0;padding:24px 14px 34px}}.toc a{{display:inline-block;margin-bottom:4px}}}}
 @media print{{.toc{{display:none}}.page{{box-shadow:none;margin:0;max-width:none;page-break-after:always}}}}
+{VISUAL_CSS}
 </style></head><body>
 <div class="cover">
 <div style="color:#E8C766">॥ ॐ श्री गणेशाय नमः ॥</div>
@@ -191,8 +201,9 @@ th{{background:#FFF1B8;width:42%}}
 <section class="page" id="kundali"><h2>Kundali — Charts &amp; Tables</h2>
 <h3>Western (tropical, Placidus)</h3><p>{planet_lines('western')}<br>ASC: {w['ascendant']['sign']} {w['ascendant']['degree_in_sign']:.2f}°</p>
 <h3>Jyotisha (Lahiri, whole-sign)</h3><p>{planet_lines('jyotisha')}<br>Lagna: {E_J_ASC} {j['ascendant']['degree_in_sign']:.2f}° · Moon: {E_NAK} Pada {nak['pada']} · Tithi: {E_PAKSHA} {j['tithi_at_instant']['number']}</p>
-<h3>Vimshottari Mahadashas</h3><table><tr><th>Lord</th><th>Period (UT)</th></tr>{md_rows}</table>
-<p>Current: {chart['vimshottari']['current']['mahadasha']}–{chart['vimshottari']['current']['antardasha']} → {chart['vimshottari']['current']['end_utc'][:10]}</p>
+{render_section(distribution, heading="h3")}
+{render_section(dasha_timeline, heading="h3")}
+{current_period}
 <p>Full wheels: charts.html · Data: chart.json</p></section>
 
 <section class="page" id="lifepath"><h2>{TH[4]}</h2>
@@ -209,6 +220,7 @@ th{{background:#FFF1B8;width:42%}}
         from reportlab.lib.pagesizes import A4
         from reportlab.lib.units import mm
         from reportlab.lib.colors import HexColor, white
+        from reportlab.graphics.shapes import Drawing, Rect
         from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
         from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
         PURPLE = HexColor("#2B0A4A"); GOLD = HexColor("#C9A227"); PARCH = HexColor("#F3E6C3")
@@ -247,8 +259,27 @@ th{{background:#FFF1B8;width:42%}}
                 ["Lo Shu Missing",", ".join(num["missing"]) or "none"]]
         t = Table([[Paragraph(f"<b>{esc(a)}</b>",s_b),Paragraph(esc(x),s_b)] for a,x in rows],colWidths=[55*mm,115*mm])
         t.setStyle(TableStyle([('BACKGROUND',(0,0),(0,-1),PARCH),('GRID',(0,0),(-1,-1),1,GOLD),('VALIGN',(0,0),(-1,-1),'TOP')]))
+        bar_rows = [["House", "Bodies / total", "Percent", "Share of total"]]
+        for row in distribution["rows"]:
+            count, total = row["value"], row["maximum"]
+            share = count / total
+            bar = Drawing(110, 10)
+            bar.add(Rect(0, 2, 110, 6, fillColor=HexColor("#E9E5EF"), strokeWidth=0))
+            if count:
+                bar.add(Rect(0, 2, 110 * share, 6, fillColor=PURPLE, strokeWidth=0))
+            bar_rows.append([row["label"], f"{count} / {total}", f"{share:.1%}", bar])
+        bars = Table(bar_rows, colWidths=[35*mm, 36*mm, 25*mm, 55*mm], repeatRows=1)
+        bars.setStyle(TableStyle([
+            ("BACKGROUND", (0, 0), (-1, 0), PURPLE),
+            ("TEXTCOLOR", (0, 0), (-1, 0), white),
+            ("ALIGN", (1, 0), (2, -1), "RIGHT"),
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ("ROWBACKGROUNDS", (0, 1), (-1, -1), [white, HexColor("#F4F1F8")]),
+        ]))
         story += [t, Spacer(1,8), Paragraph("Kundali Summary",s_h),
                   Paragraph(f"Jyotisha Lagna {j['ascendant']['sign']} {j['ascendant']['degree_in_sign']:.2f}°. D9 ASC {j['D9']['ascendant']['sign']}, D10 ASC {j['D10']['ascendant']['sign']}. Full wheels in charts.html; data in chart.json.",s_b),
+                  Paragraph(distribution["title"], s_h),
+                  Paragraph(distribution["note"], s_b), Spacer(1, 6), bars,
                   Paragraph("Life-Path Appendix",s_h),
                   Paragraph("Career, Health, Family, Finance, Luck, Growth and Turning Points are written in the HTML report from these placements — practical inference only, no medical, investment or irreversible-choice prescription.",s_b)]
         doc = SimpleDocTemplate(str(pdf_p),pagesize=A4,topMargin=18*mm,bottomMargin=18*mm,leftMargin=18*mm,rightMargin=18*mm,

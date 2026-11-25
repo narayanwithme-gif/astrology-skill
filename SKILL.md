@@ -76,7 +76,7 @@ Never equate Western aspects to graha drishti, tropical signs to same-named side
 
 State an explicit as-of date/time and forecast window. Dashas are periods; gochara/transits are moving positions. A snapshot does not establish an exact hit, ingress or retrograde sequence: bracket and solve the event separately if requested. Use conditional themes, not promised marriage/job/wealth dates. Read `references/report-template.md` for complete deliverables and the calculation status table.
 
-Use bullet form for readings. Keep exact degrees/settings in tables, diagrams labelled with zodiac/house method, and text tied to chart evidence. Save a coherent `reading.md` alongside computed files, with no empty headings or fabricated “notable yogas”. Chart output remains facts even when interpretation is unavailable.
+Use bullet form for readings. Keep exact degrees/settings in tables, diagrams labelled with zodiac/house method, and text tied to chart evidence. Use [Report visuals](references/report-visuals.md) for percentage bars, timelines, steps and tables. For bespoke visuals, load [Report Charts](skills/report-charts/SKILL.md) or [Report Diagrams](skills/report-diagrams/SKILL.md). Save a coherent `reading.md` alongside computed files, with no empty headings or fabricated “notable yogas”. Chart output remains facts even when interpretation is unavailable.
 
 ## 6. Sources and continuity
 

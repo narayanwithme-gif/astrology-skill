@@ -113,7 +113,7 @@ The [example request](assets/request.example.json) is fictional. For a personal 
 | File | Contents |
 | --- | --- |
 | `chart.json` | Positions, settings, periods, transits, uncertainty checks and provenance |
-| `charts.html` | Western wheel; north and south Indian D1/D9/D10 charts; tables |
+| `charts.html` | Western wheel, north and south Indian D1/D9/D10 charts, house distribution, dasha timeline, and exact tables |
 | `calculation.md` | Engine settings, internal checks and calculation warnings |
 | `reading.md` | Written by Hermes using the skill's report instructions |
 | Vedic indicators JSON | Up to 21 chart-specific cards from a 252-template Jyotisha library — `hermes-vedic-predictions --chart chart.json --out vedic-indicators.json` |
@@ -123,6 +123,13 @@ The [example request](assets/request.example.json) is fictional. For a personal 
 | Tamil Dasa Porutham | Ten source-backed checks (Dina, Gana, Mahendra, Stree Deergha, Yoni, Rasi, Rasyadhipathi, Vasya, Rajju, Vedha); can run alongside Ashtakoota |
 | Ayanamsha | Lahiri, KP (Krishnamurti), Raman via `settings.ayanamsha` |
 | Multilingual output | English, Hindi, Hinglish, Marathi, Odia templates (`references/templates.md`) + `scripts/pdf_export.py` |
+| Custom report visuals | Offline percentage bars, timelines, exact-value tables, and step diagrams via `hermes-report-visuals` |
+
+The chart atlas and Fortune HTML include a D1 house distribution and a
+Vimshottari timeline. The Fortune PDF also includes the house distribution.
+For custom visuals, use the [Report Charts](skills/report-charts/SKILL.md) and
+[Report Diagrams](skills/report-diagrams/SKILL.md) agent skills with the
+[local renderer and example](references/report-visuals.md).
 
 The calculator writes the first three files. Interpretation and study notes require Hermes or another assistant following `SKILL.md`. See the [fictional sample atlas](examples/demo/charts.html) and [report instructions](references/report-template.md).
 

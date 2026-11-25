@@ -5,3 +5,4 @@ recursive-include scripts *.py *.ps1 *.sh
 recursive-include tests *.py
 recursive-include docs *.md *.svg
 recursive-include examples *.html *.json
+recursive-include skills *.md
