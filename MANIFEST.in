@@ -1,4 +1,5 @@
-include SKILL.md requirements.txt requirements-dev.txt CONTRIBUTING.md SECURITY.md CHANGELOG.md
+include SKILL.md requirements.txt requirements-dev.txt CONTRIBUTING.md SECURITY.md CHANGELOG.md RELEASE.md LICENSE NOTICE COMMERCIAL-LICENSE.md LICENSING.md COMMUNITY.md MCP_SETUP.md SKILL_DISCOVERY.md uv.lock pyrightconfig.json
+recursive-include release_notes *.md
 recursive-include references *.md
 recursive-include assets *.json
 recursive-include scripts *.py *.ps1 *.sh
